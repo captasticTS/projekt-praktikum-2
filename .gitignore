@@ -1,0 +1,85 @@
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# Ignore build results
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# Ignore package-related files
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Ignore build logs
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Ignore publish-related files
+*.publishsettings
+publish/
+
+# Ignore runtime artifacts
+*.pdb
+*.mdb
+*.ilk
+*.obj
+*.idb
+*.tlog
+*.log
+
+# Ignore Blazor-specific artifacts
+wwwroot/
+dist/
+node_modules/
+*serviceworkerassets*
+*.json.bak
+
+# Ignore logs and IDE reports
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.idea/
+
+# Ignore Secrets
+secrets.json
+*.secret
+.env
+*.env.local
+
+# Ignore Resharper files
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Ignore JetBrains Rider project files
+.idea/
+.idea_modules/
+*.iws
+*.iml
+
+# Ignore npm and Yarn files
+node_modules/
+yarn.lock
+package-lock.json
+
+# Ignore other generated files
+*.cache/
+*.csproj.user
+*.rsuser
+*.sln.metaproj
+*.sln.metaproj.tmp
