@@ -1,6 +1,7 @@
 using ArrowLog.Components;
 using ArrowLog.Database;
-using Microsoft.EntityFrameworkCore;
+using ArrowLog.Features.Login;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Adds DB Context for EF Core
 builder.Services.AddDbContext<AppDbContext>();
+
+// Adds Login Services
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Ensure cookies expire consistently with the session
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 
@@ -24,6 +45,11 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.UseStaticFiles();
+app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

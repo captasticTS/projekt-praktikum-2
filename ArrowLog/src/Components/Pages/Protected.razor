@@ -1,0 +1,27 @@
+﻿@page "/protected"
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
+
+<h3>Protected Page</h3>
+
+@if (IsUserLoggedIn)
+{
+    <p>Welcome, @LoggedInUser!</p>
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
+
+@code {
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    protected override void OnInitialized()
+    {
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

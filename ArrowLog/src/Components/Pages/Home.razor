@@ -1,7 +1,20 @@
-﻿@page "/"
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@rendermode InteractiveServer
+@page "/"
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
+@if (IsUserLoggedIn)
+{
+    <p>Hello @LoggedInUser</p>
+}
+
 Welcome to your new app.
+
+@code{
+    private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+    private bool test = true;
+}

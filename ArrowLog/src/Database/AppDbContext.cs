@@ -1,7 +1,5 @@
 ﻿using ArrowLog.Features.Login;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 
 namespace ArrowLog.Database;
 

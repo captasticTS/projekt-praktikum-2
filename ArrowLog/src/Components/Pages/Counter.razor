@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -11,6 +13,19 @@
 
 @code {
     private int currentCount = 0;
+    private string LoggedInUser = string.Empty;
+    private bool IsUserLoggedIn;
+
+    protected override void OnInitialized()
+    {
+        LoggedInUser = HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
+        IsUserLoggedIn = !string.IsNullOrEmpty(LoggedInUser);
+
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
 
     private void IncrementCount()
     {

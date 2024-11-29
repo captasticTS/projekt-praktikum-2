@@ -1,0 +1,16 @@
+﻿@page "/logout"
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+<h3>Logging out...</h3>
+
+@code {
+    protected override Task OnInitializedAsync()
+    {
+        HttpContextAccessor.HttpContext?.Session.Remove("LoggedInUser");
+
+        NavigationManager.NavigateTo("/login");
+
+        return Task.CompletedTask;
+    }
+}
