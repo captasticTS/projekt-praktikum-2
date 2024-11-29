@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace ArrowLog.Database;
 
-public class BloggingContext : DbContext
+public class AppDbContext : DbContext
 {
-    public DbSet<User> Blogs { get; set; }
+    public DbSet<User> Users { get; set; }
 
     public string DbPath { get; }
 
-    public BloggingContext()
+    public AppDbContext()
     {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
