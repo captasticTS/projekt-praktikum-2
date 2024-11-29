@@ -1,10 +1,14 @@
 using ArrowLog.Components;
+using ArrowLog.Database;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContext<AppDbContext>();
 
 var app = builder.Build();
 
