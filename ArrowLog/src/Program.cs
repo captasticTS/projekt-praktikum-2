@@ -1,5 +1,7 @@
 using ArrowLog.Components;
 using ArrowLog.Database;
+using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using ArrowLog.Features.Login;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -10,6 +12,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Adds DB Context for EF Core
+builder.Services.AddMudServices();
+
 builder.Services.AddDbContext<AppDbContext>();
 
 // Adds Login Services
