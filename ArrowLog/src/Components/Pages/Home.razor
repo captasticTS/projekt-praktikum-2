@@ -4,7 +4,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Hello, fasdfaworld!</h1>
 
 @if (IsUserLoggedIn)
 {
@@ -17,4 +17,5 @@ Welcome to your new app.
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
     private bool test = true;
+
 }
