@@ -44,8 +44,10 @@
             <MudButton Variant=Variant.Outlined Color=Color.Warning FullWidth OnClick="ResetPassword">Reset Password</MudButton>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="string" Label="Theme" Variant=Variant.Outlined @bind-Value="Theme">
-            </MudSelect>
+            <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Change Theme</MudText>
+            <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="MyCustomTheme" />
+            <MudToggleIconButton @bind-Toggled="@_isDarkMode" Icon="@Icons.Material.Filled.DarkMode" Color="@Color.Default"
+                                 ToggledIcon="@Icons.Material.Filled.WbSunny" ToggledColor="@Color.Default"></MudToggleIconButton>
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudButton Variant=Variant.Outlined Color=Color.Secondary FullWidth OnClick="ResetProgress">Reset Progress</MudButton>
@@ -61,7 +63,6 @@
     private string LastName = string.Empty;
     private string Username = string.Empty;
     private string Email = string.Empty;
-    private string Theme = "Light";
 
 
     private void ResetPassword()
@@ -92,5 +93,23 @@
         // Navigate to the New Parcours Page
         NavigationManager.NavigateTo("/new-parcours");
     }
+    private bool _isDarkMode;
+    MudTheme MyCustomTheme = new()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = Colors.Indigo.Darken4,
+                Secondary = Colors.Indigo.Accent1,
+                AppbarBackground = Colors.Indigo.Darken4,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.Indigo.Darken4,
+                Secondary = Colors.Indigo.Accent1,
+                AppbarBackground = Colors.Indigo.Darken4,
+            }
+        };
+
+
 
 }
