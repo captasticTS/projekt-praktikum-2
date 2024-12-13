@@ -38,6 +38,7 @@ public class DbGameService
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -52,8 +53,9 @@ public class DbGameService
 
             return games;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -68,8 +70,9 @@ public class DbGameService
 
             return games;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -84,8 +87,9 @@ public class DbGameService
 
             return games;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -107,8 +111,9 @@ public class DbGameService
 
             return existingGame;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -130,8 +135,9 @@ public class DbGameService
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }

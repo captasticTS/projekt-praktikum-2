@@ -1,10 +1,15 @@
 ﻿@inject IHttpContextAccessor HttpContextAccessor
+@using ArrowLog.Database.Services
 @rendermode InteractiveServer
 @page "/"
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, fasdfaworld!</h1>
+
+<MudButton OnClick="searchAndLog"> 
+    Click here to search and log
+</MudButton>
 
 @if (IsUserLoggedIn)
 {
@@ -17,5 +22,10 @@ Welcome to your new app.
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
     private bool test = true;
+    private DbGameService _gameService = new(new Database.AppDbContext());
 
+    private async Task searchAndLog()
+    {
+        Console.WriteLine((await _gameService.FindGameByCode(123))?.Count() ?? -1);
+    }
 }

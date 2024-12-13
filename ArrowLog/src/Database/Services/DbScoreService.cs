@@ -24,6 +24,7 @@ public class DbScoreService
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -45,8 +46,9 @@ public class DbScoreService
 
             return existingScore;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -68,8 +70,9 @@ public class DbScoreService
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }

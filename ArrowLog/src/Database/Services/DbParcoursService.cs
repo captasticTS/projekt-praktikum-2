@@ -37,6 +37,7 @@ public class DbParcoursService
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -51,8 +52,9 @@ public class DbParcoursService
 
             return parcours;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -67,8 +69,9 @@ public class DbParcoursService
 
             return parcours;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -83,8 +86,9 @@ public class DbParcoursService
 
             return parcours;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -108,8 +112,9 @@ public class DbParcoursService
 
             return existingParcours;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -131,8 +136,9 @@ public class DbParcoursService
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }

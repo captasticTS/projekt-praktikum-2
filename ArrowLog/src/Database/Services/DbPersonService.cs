@@ -37,6 +37,7 @@ public class DbPersonService
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -53,8 +54,9 @@ public class DbPersonService
 
             return persons;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -80,8 +82,9 @@ public class DbPersonService
 
             return existingPerson;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return null;
         }
     }
@@ -103,8 +106,9 @@ public class DbPersonService
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }
