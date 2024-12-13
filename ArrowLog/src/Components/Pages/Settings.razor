@@ -1,0 +1,97 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@page "/settings"
+@using MudBlazor
+@using static MudBlazor.Icons.Material
+
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <!-- Buttons for New Ruleset and New Parcours -->
+    <MudGrid>
+        <MudItem xs="6" Class="d-flex justify-center">
+            <MudButton Variant.Filled Color.Primary OnClick=GoToNewRuleset>New Ruleset</MudButton>
+        </MudItem>
+        <MudItem xs="6" Class="d-flex justify-center">
+            <MudButton Variant.Filled Color.Primary OnClick=GoToNewParcours>New Parcours</MudButton>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-4" />
+
+    <!-- Personal Info Section -->
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">Personal Info</MudText>
+    <MudForm>
+        <MudGrid Spacing="3">
+            <MudItem xs="6">
+                <MudTextField Label="First Name" @bind-Value="FirstName" Variant.Outlined />
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField Label="Last Name" @bind-Value="LastName" Variant.Outlined />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Username" @bind-Value="Username" Variant.Outlined />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="E-Mail" @bind-Value="Email" Variant.Outlined />
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+
+    <!-- Actions Section -->
+    <MudGrid Spacing="3" Class="mt-4">
+        <MudItem xs="12" sm="6">
+            <MudButton Variant.Outlined Color.Warning FullWidth OnClick="ResetPassword">Reset Password</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="string" Label="Theme" Variant.Outlined @bind-Value="Theme">
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudButton Variant.Outlined Color.Secondary FullWidth OnClick="ResetProgress">Reset Progress</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudButton Variant.Outlined Color.Error FullWidth OnClick="DeleteAccount">Delete Account</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string FirstName = string.Empty;
+    private string LastName = string.Empty;
+    private string Username = string.Empty;
+    private string Email = string.Empty;
+    private string Theme = "Light";
+
+
+    private void ResetPassword()
+    {
+        // Logic for resetting password
+        Console.WriteLine("Password Reset");
+    }
+
+    private void ResetProgress()
+    {
+        // Logic for resetting progress
+        Console.WriteLine("Progress Reset");
+    }
+
+    private void DeleteAccount()
+    {
+        // Logic for deleting account
+        Console.WriteLine("Account Deleted");
+    }
+    private void GoToNewRuleset()
+    {
+        // Navigate to the New Ruleset Page (if it exists)
+        NavigationManager.NavigateTo("/new-ruleset");
+    }
+
+    private void GoToNewParcours()
+    {
+        // Navigate to the New Parcours Page
+        NavigationManager.NavigateTo("/new-parcours");
+    }
+
+}
+
