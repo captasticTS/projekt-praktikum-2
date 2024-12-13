@@ -12,8 +12,6 @@ public class AppDbContext : DbContext
     public DbSet<Game> Games { get; set; }
     public DbSet<Parcours> Parcours { get; set; }
 
-
-
     public string DbPath { get; }
 
     public AppDbContext()
