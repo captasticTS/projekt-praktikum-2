@@ -1,0 +1,46 @@
+﻿@page "/new-parcours"
+@inject NavigationManager NavigationManager
+@using MudBlazor
+@using static MudBlazor.Icons.Material
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <!-- Section Title -->
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">New Parcours</MudText>
+
+    <MudForm>
+        <MudGrid Spacing="3">
+            <!-- Name Input -->
+            <MudItem xs="12">
+                <MudTextField Label="Name" @bind-Value="ParcoursName" Variant.Outlined FullWidth />
+            </MudItem>
+
+            <!-- Targets Selector -->
+            <MudItem xs="12">
+                <MudSelect T="int" Label="Targets" Variant.Outlined FullWidth @bind-Value="Targets">
+                    @for (int i = 1; i <= 20; i++)
+                    {
+                        <MudSelectItem Value="@i">@i</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Create Button -->
+        <MudGrid Spacing="3" Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudButton Variant.Filled Color.Primary OnClick="CreateParcours">CREATE</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+</MudContainer>
+
+@code {
+    private string ParcoursName = string.Empty;
+    private int Targets = 9; // Default value
+
+    private void CreateParcours()
+    {
+        // Logic to create a new parcours
+        Console.WriteLine($"Parcours Created: {ParcoursName} with {Targets} targets");
+    }
+}
