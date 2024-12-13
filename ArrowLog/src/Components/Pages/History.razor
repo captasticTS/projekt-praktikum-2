@@ -1,0 +1,77 @@
+﻿@page "/history"
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <!-- Section Title -->
+    <MudGrid Spacing="3" AlignItems="Center">
+        <MudItem xs="10">
+            <MudText Typo="Typo.h5" Align="Align.Start">Past Games</MudText>
+        </MudItem>
+        <MudItem xs="2" Class="d-flex justify-center">
+            <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color.Primary OnClick="RefreshGames" />
+        </MudItem>
+    </MudGrid>
+
+    <!-- Past Games Table -->
+    <MudTable Items="Games" Dense="true" Bordered="true" Hover="true">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Parcour</MudTh>
+            <MudTh>Score</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Parcour">@context.Parcour</MudTd>
+            <MudTd DataLabel="Score">@context.Score</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    <!-- Avg Score -->
+    <MudGrid Spacing="3" Class="mt-4">
+        <MudItem xs="12">
+            <MudText Typo="Typo.body1">Avg Score:</MudText>
+            <MudTextField @bind-Value="AverageScore" Variant=Variant.Outlined FullWidth Disabled />
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<Game> Games = new();
+    private double AverageScore;
+
+    protected override void OnInitialized()
+    {
+        // Mock Data for past games
+        Games = new List<Game>
+        {
+            new Game { Date = DateTime.Now.AddDays(-1), Parcour = "Forest Trail", Score = 85 },
+            new Game { Date = DateTime.Now.AddDays(-3), Parcour = "Mountain Path", Score = 92 },
+            new Game { Date = DateTime.Now.AddDays(-5), Parcour = "Valley Range", Score = 78 },
+        };
+
+        CalculateAverageScore();
+    }
+
+    private void CalculateAverageScore()
+    {
+        if (Games.Any())
+        {
+            AverageScore = Games.Average(g => g.Score);
+        }
+    }
+
+    private void RefreshGames()
+    {
+        // Logic to refresh the games data
+        Console.WriteLine("Refreshing games...");
+        // For now, just recalculate the average score
+        CalculateAverageScore();
+    }
+
+    public class Game
+    {
+        public DateTime Date { get; set; }
+        public string Parcour { get; set; }
+        public int Score { get; set; }
+    }
+}

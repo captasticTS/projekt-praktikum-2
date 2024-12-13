@@ -10,10 +10,10 @@
     <!-- Buttons for New Ruleset and New Parcours -->
     <MudGrid>
         <MudItem xs="6" Class="d-flex justify-center">
-            <MudButton Variant.Filled Color.Primary OnClick=GoToNewRuleset>New Ruleset</MudButton>
+            <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=GoToNewRuleset>New Ruleset</MudButton>
         </MudItem>
         <MudItem xs="6" Class="d-flex justify-center">
-            <MudButton Variant.Filled Color.Primary OnClick=GoToNewParcours>New Parcours</MudButton>
+            <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=GoToNewParcours>New Parcours</MudButton>
         </MudItem>
     </MudGrid>
 
@@ -24,16 +24,16 @@
     <MudForm>
         <MudGrid Spacing="3">
             <MudItem xs="6">
-                <MudTextField Label="First Name" @bind-Value="FirstName" Variant.Outlined />
+                <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined />
             </MudItem>
             <MudItem xs="6">
-                <MudTextField Label="Last Name" @bind-Value="LastName" Variant.Outlined />
+                <MudTextField Label="Last Name" @bind-Value="LastName" Variant=Variant.Outlined />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Label="Username" @bind-Value="Username" Variant.Outlined />
+                <MudTextField Label="Username" @bind-Value="Username" Variant=Variant.Outlined />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Label="E-Mail" @bind-Value="Email" Variant.Outlined />
+                <MudTextField Label="E-Mail" @bind-Value="Email" Variant=Variant.Outlined />
             </MudItem>
         </MudGrid>
     </MudForm>
@@ -41,17 +41,17 @@
     <!-- Actions Section -->
     <MudGrid Spacing="3" Class="mt-4">
         <MudItem xs="12" sm="6">
-            <MudButton Variant.Outlined Color.Warning FullWidth OnClick="ResetPassword">Reset Password</MudButton>
+            <MudButton Variant=Variant.Outlined Color=Color.Warning FullWidth OnClick="ResetPassword">Reset Password</MudButton>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="string" Label="Theme" Variant.Outlined @bind-Value="Theme">
+            <MudSelect T="string" Label="Theme" Variant=Variant.Outlined @bind-Value="Theme">
             </MudSelect>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudButton Variant.Outlined Color.Secondary FullWidth OnClick="ResetProgress">Reset Progress</MudButton>
+            <MudButton Variant=Variant.Outlined Color=Color.Secondary FullWidth OnClick="ResetProgress">Reset Progress</MudButton>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudButton Variant.Outlined Color.Error FullWidth OnClick="DeleteAccount">Delete Account</MudButton>
+            <MudButton Variant=Variant.Outlined Color=Color.Error FullWidth OnClick="DeleteAccount">Delete Account</MudButton>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -94,4 +94,3 @@
     }
 
 }
-

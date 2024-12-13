@@ -1,0 +1,75 @@
+﻿@page "/register"
+@using MudBlazor
+@inject NavigationManager NavigationManager
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <!-- Welcome Message -->
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">Create Your Account</MudText>
+
+    <!-- Registration Form -->
+    <MudForm>
+        <MudGrid Spacing="3">
+            <!-- First Name -->
+            <MudItem xs="12">
+                <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined FullWidth />
+            </MudItem>
+
+            <!-- Last Name -->
+            <MudItem xs="12">
+                <MudTextField Label="Last Name" @bind-Value="LastName" Variant=Variant.Outlined FullWidth />
+            </MudItem>
+
+            <!-- Email -->
+            <MudItem xs="12">
+                <MudTextField Label="Email" @bind-Value="Email" Variant=Variant.Outlined FullWidth InputType.email />
+            </MudItem>
+
+            <!-- Nickname -->
+            <MudItem xs="12">
+                <MudTextField Label="Nickname" @bind-Value="Nickname" Variant=Variant.Outlined FullWidth />
+            </MudItem>
+
+            <!-- Password -->
+            <MudItem xs="12">
+                <MudTextField Label="Password" @bind-Value="Password" Variant=Variant.Outlined FullWidth InputType.password />
+            </MudItem>
+        </MudGrid>
+
+        <!-- Register Button -->
+        <MudGrid Spacing="3" Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudButton Variant.Filled Color.Primary OnClick="RegisterUser">Register</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+
+    <!-- Already Have Account Link -->
+    <MudGrid Spacing="3" Class="mt-4">
+        <MudItem xs="12" Class="d-flex justify-center">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Already have an account?
+                <MudButton Variant.Text Color.Secondary OnClick="GoToSignIn">Sign In</MudButton>
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string FirstName = string.Empty;
+    private string LastName = string.Empty;
+    private string Email = string.Empty;
+    private string Nickname = string.Empty;
+    private string Password = string.Empty;
+
+    private void RegisterUser()
+    {
+        // Logic for registering a user
+        Console.WriteLine($"Registering user: {FirstName} {LastName}, Email: {Email}, Nickname: {Nickname}");
+    }
+
+    private void GoToSignIn()
+    {
+        // Navigate to the Sign-In Page
+        NavigationManager.NavigateTo("/Welcome");
+    }
+}
