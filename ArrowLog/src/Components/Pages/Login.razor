@@ -21,7 +21,7 @@
 }
 
 <form @onsubmit="HandleLogin">
-    <input @bind="username" placeholder="Username" />
+    <input @bind="nickname" placeholder="Username" />
     <br />
     <input @bind="password" placeholder="Password" type="password" />
     <br />
@@ -32,7 +32,7 @@
 <p>register user:</p>
 
 <form @onsubmit="HandleCreate">
-    <input @bind="username" placeholder="Username" />
+    <input @bind="nickname" placeholder="Username" />
     <br />
     <input @bind="password" placeholder="Password" type="password" />
     <br />
@@ -40,7 +40,7 @@
 </form>
 
 @code {
-    private string username = string.Empty;
+    private string nickname = string.Empty;
     private string password = string.Empty;
     private bool loginFailed = false;
     private string errorMessage = string.Empty;
@@ -52,16 +52,16 @@
 
         try
         {
-            var user = AuthService.ValidateUser(username, password);
+            var person = AuthService.ValidateUser(nickname, password);
 
-            if (user != null)
+            if (person != null)
             {
                 errorMessage = "Login successful!";
                 var context = HttpContextAccessor.HttpContext;
 
                 if (context != null)
                 {
-                    context.Session.SetString("LoggedInUser", user.Username);
+                    context.Session.SetString("LoggedInUser", person.NickName);
                     NavigationManager.NavigateTo("/");
                 }
                 else
@@ -85,9 +85,9 @@
     {
         try
         {
-            var user = AuthService.RegisterUser(username, password);
+            var person = AuthService.RegisterUser(nickname, password);
 
-            if (user is null)
+            if (person is null)
             {
                 errorMessage = "Couldn't create user.";
                 return;
