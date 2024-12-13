@@ -1,0 +1,67 @@
+﻿@page "/"
+@using MudBlazor
+@inject NavigationManager NavigationManager
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+    <!-- Welcome Message -->
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">Welcome to ArrowLog!</MudText>
+
+    <!-- Login Form -->
+    <MudForm>
+        <MudGrid Spacing="3">
+            <!-- Username Input -->
+            <MudItem xs="12">
+                <MudTextField Label="Username" @bind-Value="Username" Variant.Outlined FullWidth />
+            </MudItem>
+
+            <!-- Password Input -->
+            <MudItem xs="12">
+                <MudTextField Label="Password" @bind-Value="Password" Variant.Outlined FullWidth InputType.password />
+            </MudItem>
+        </MudGrid>
+
+        <!-- Sign In Button -->
+        <MudGrid Spacing="3" Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudButton Variant.Filled Color.Primary OnClick="SignIn">Sign in</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+
+    <!-- Divider with "or" -->
+    <MudGrid Spacing="3" Class="mt-3">
+        <MudItem xs="5" Class="d-flex align-center">
+            <MudDivider />
+        </MudItem>
+        <MudItem xs="2" Class="d-flex justify-center align-center">
+            <MudText Typo="Typo.body2">or</MudText>
+        </MudItem>
+        <MudItem xs="5" Class="d-flex align-center">
+            <MudDivider />
+        </MudItem>
+    </MudGrid>
+
+    <!-- Register Button -->
+    <MudGrid Spacing="3" Class="mt-4">
+        <MudItem xs="12" Class="d-flex justify-center">
+            <MudButton Variant.Outlined Color.Secondary OnClick="GoToRegister">Register</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string Username = string.Empty;
+    private string Password = string.Empty;
+
+    private void SignIn()
+    {
+        // Logic for signing in
+        Console.WriteLine($"Signing in with Username: {Username}");
+    }
+
+    private void GoToRegister()
+    {
+        // Navigate to the Register Page
+        NavigationManager.NavigateTo("/register");
+    }
+}
