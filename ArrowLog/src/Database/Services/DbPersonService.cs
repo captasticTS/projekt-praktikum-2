@@ -16,6 +16,11 @@ public class DbPersonService
     {
         try
         {
+            if (!VerificationService.VerifyPerson(person))
+            {
+                return null;
+            }
+
             var alreadyExists = await _context.Persons
                 .AnyAsync(x => x.NickName == person.NickName);
 
@@ -51,6 +56,56 @@ public class DbPersonService
         catch
         {
             return null;
+        }
+    }
+
+    public async Task<Person?> UpdatePerson(Person person)
+    {
+        try
+        {
+            var existingPerson = await _context.Persons.FindAsync(person.Id);
+
+            if (existingPerson is null)
+            {
+                return null;
+            }
+
+            existingPerson.FirstName = person.FirstName;
+            existingPerson.LastName = person.LastName;
+            existingPerson.NickName = person.NickName;
+            existingPerson.Email = person.Email;
+            existingPerson.PasswordHash = person.PasswordHash;
+
+            await _context.SaveChangesAsync();
+
+            return existingPerson;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> DeletePerson(Person person)
+    {
+        try
+        {
+            var existingPerson = await _context.Persons.FindAsync(person.Id);
+
+            if (existingPerson is null)
+            {
+                return false;
+            }
+
+            _context.Persons.Remove(existingPerson);
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 
