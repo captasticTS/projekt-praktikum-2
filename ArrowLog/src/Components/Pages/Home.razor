@@ -18,5 +18,10 @@
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
     private bool test = true;
+    private DbGameService _gameService = new(new Database.AppDbContext());
 
+    private async Task searchAndLog()
+    {
+        Console.WriteLine((await _gameService.FindGameByCode(123))?.Count() ?? -1);
+    }
 }

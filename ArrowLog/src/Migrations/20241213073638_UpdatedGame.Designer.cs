@@ -3,6 +3,7 @@ using System;
 using ArrowLog.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArrowLog.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20241213073638_UpdatedGame")]
+    partial class UpdatedGame
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -78,9 +81,8 @@ namespace ArrowLog.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("LastName")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("NickName")
                         .IsRequired()

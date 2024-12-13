@@ -1,0 +1,105 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@using ArrowLog.Features.Login
+@using ArrowLog.Database
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+
+<h3>Login</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:blue;">@errorMessage</p>
+}
+
+@if (loginFailed)
+{
+    <p style="color:red;">Invalid username or password</p>
+}
+
+<form @onsubmit="HandleLogin">
+    <input @bind="nickname" placeholder="Username" />
+    <br />
+    <input @bind="password" placeholder="Password" type="password" />
+    <br />
+    <button type="submit">Login</button>
+</form>
+
+
+<p>register user:</p>
+
+<form @onsubmit="HandleCreate">
+    <input @bind="nickname" placeholder="Username" />
+    <br />
+    <input @bind="password" placeholder="Password" type="password" />
+    <br />
+    <button type="submit">Register</button>
+</form>
+
+@code {
+    private string nickname = string.Empty;
+    private string password = string.Empty;
+    private bool loginFailed = false;
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = "Commencing login...";
+        loginFailed = false;
+
+        try
+        {
+            var person = AuthService.ValidateUser(nickname, password);
+
+            if (person != null)
+            {
+                errorMessage = "Login successful!";
+                var context = HttpContextAccessor.HttpContext;
+
+                if (context != null)
+                {
+                    context.Session.SetString("LoggedInUser", person.NickName);
+                    NavigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    errorMessage = "Session context is null. Ensure session middleware is active.";
+                }
+            }
+            else
+            {
+                loginFailed = true;
+                errorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private async Task HandleCreate()
+    {
+        try
+        {
+            var person = AuthService.RegisterUser(nickname, password);
+
+            if (person is null)
+            {
+                errorMessage = "Couldn't create user.";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            return;
+        }
+
+        errorMessage = "succesful";
+
+    }
+}

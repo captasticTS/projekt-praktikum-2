@@ -1,4 +1,5 @@
-﻿using ArrowLog.Features.Login;
+﻿using ArrowLog.Database.Models;
+using ArrowLog.Features.Login;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArrowLog.Database;
@@ -6,6 +7,10 @@ namespace ArrowLog.Database;
 public class AppDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Person> Persons { get; set; }
+    public DbSet<Score> Scores { get; set; }
+    public DbSet<Game> Games { get; set; }
+    public DbSet<Parcours> Parcours { get; set; }
 
     public string DbPath { get; }
 
