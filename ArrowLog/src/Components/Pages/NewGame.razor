@@ -1,0 +1,15 @@
+﻿@page "/NewGame"
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>NewGame</PageTitle>
+
+<MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Join Game</MudText>
+
+
+
+
+@code {
+	private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
+	private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+}

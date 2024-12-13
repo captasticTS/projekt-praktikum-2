@@ -1,9 +1,8 @@
-﻿<MudNavMenu Class="mud-width-full" Color="@Color.Default" Style="display: flex; justify-content: space-around; position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 8px; background-color: #1A237E
-
-">
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="MyCustomTheme" />
+<MudNavMenu Class="mud-width-full" Color="@Color.Default" Style="display: flex; justify-content: space-around; position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 8px; background-color: #1A237E">
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" IconColor="@Color.Default" Match="NavLinkMatch.All" DisableRipple />
-    <MudNavLink Href="/Game" Icon="@Icons.Material.Filled.Radar" IconColor="@Color.Default" Match="NavLinkMatch.Prefix" DisableRipple />
-    <MudNavLink Href="/History" Icon="@Icons.Material.Filled.AutoGraph" IconColor="@Color.Default" Match="NavLinkMatch.Prefix" DisableRipple />
+    <MudNavLink Href="/NewGame" Icon="@Icons.Material.Filled.Radar" IconColor="@Color.Default" Match="NavLinkMatch.Prefix" DisableRipple />
+    <MudNavLink Href="/Weather" Icon="@Icons.Material.Filled.AutoGraph" IconColor="@Color.Default" Match="NavLinkMatch.Prefix" DisableRipple />
     <MudNavLink Href="/Settings" Icon="@Icons.Material.Filled.Settings" IconColor="@Color.Default" Match="NavLinkMatch.Prefix" DisableRipple />
 </MudNavMenu>
 
