@@ -7,6 +7,7 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="MyCustomTheme" />
 
 <MudLayout>
     <MudAppBar>
@@ -30,7 +31,6 @@
 
 
 @code {
- 
     private bool _isDarkMode;
     MudTheme MyCustomTheme = new()
         {
@@ -47,5 +47,6 @@
                 AppbarBackground = Colors.Indigo.Darken4,
             }
         };
+
 
 }

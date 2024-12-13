@@ -4,12 +4,64 @@
 
 <PageTitle>NewGame</PageTitle>
 
-<MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Join Game</MudText>
+<MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
 
+    <!-- Enter Code Section -->
+    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Join Game</MudText>
+    <MudTextField T="string" Label="Enter Code" Variant="Variant.Outlined" FullWidth="true" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2">
+        Join!
+    </MudButton>
 
+    <!-- Divider -->
+    <MudDivider/>
+    <MudDivider/>
+
+    <MudGrid Spacing="2" Class="mt-2">
+        <MudItem xs="5" Class="d-flex align-center">
+            <MudDivider Class="my-2" />
+        </MudItem>
+        <MudItem xs="2" Class="d-flex justify-center align-center">
+            <MudText Typo="Typo.caption">or</MudText>
+        </MudItem>
+        <MudItem xs="5" Class="d-flex align-center">
+            <MudDivider Class="my-2" />
+        </MudItem>
+    </MudGrid>
+
+    <!-- Create Game Section -->
+    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Create Game</MudText>
+    <MudSelect @bind-Value="_selectedCourse" T="string" Label="Course" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
+        @foreach (var course in _courses)
+        {
+            <MudSelectItem Value="course">@course</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect @bind-Value="_selectRules" T="string" Label="Ruleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
+        @foreach (var rules in _rules){
+            <MudSelectItem Value="rules">@rules</MudSelectItem>
+        }
+    </MudSelect>
+    <MudTextField T="string" Label="Code" Variant="Variant.Outlined" FullWidth="true" Disabled="true" />
+
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true" Class="mt-2">
+        Start!
+    </MudButton>
+
+</MudContainer>
 
 
 @code {
-	private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
-	private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+    private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    private string _selectedCourse;
+    private string[] _courses =
+    {
+        "Mathematics", "Physics", "Chemistry", "Biology"
+    };
+
+    private string _selectRules;
+    private string[] _rules = {"Rule1", "Rule2", "Rule3", "Rule4" };
+    
 }
