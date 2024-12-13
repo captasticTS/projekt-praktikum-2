@@ -3,37 +3,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArrowLog.Database.Services;
 
-public class DbParcoursService
+public class DbScoreService
 {
     private AppDbContext _context;
 
-    public DbParcoursService(AppDbContext context)
+    public DbScoreService(AppDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Parcours?> CreateParcours(Parcours parcours)
+    public async Task<Score?> CreateScore(Score score)
     {
         try
         {
-            if (!VerificationService.VerifyParcours(parcours))
-            {
-                return null;
-            }
-
-            var alreadyExists = await _context.Parcours
-                .AnyAsync(x => x.Name == parcours.Name);
-
-            if (alreadyExists)
-            {
-                return null;
-            }
-
-            await _context.Parcours.AddAsync(parcours);
+            await _context.Scores.AddAsync(score);
 
             await _context.SaveChangesAsync();
 
-            return parcours;
+            return score;
         }
         catch (Exception ex)
         {
@@ -41,72 +28,22 @@ public class DbParcoursService
         }
     }
 
-    public async Task<List<Parcours>?> FindParcoursByName(string name)
+    public async Task<Score?> UpdateScore(Score score)
     {
         try
         {
-            var parcours = await _context.Parcours
-                .Where(x => x.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToListAsync();
+            var existingScore = await _context.Scores.FindAsync(score.Id);
 
-            return parcours;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public async Task<List<Parcours>?> FindParcoursByLocation(string location)
-    {
-        try
-        {
-            var parcours = await _context.Parcours
-                .Where(x => x.Location.IndexOf(location, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToListAsync();
-
-            return parcours;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public async Task<List<Parcours>?> FindParcoursByAnimalCount(int animalCount)
-    {
-        try
-        {
-            var parcours = await _context.Parcours
-                .Where(x => x.AnimalCount == animalCount)
-                .ToListAsync();
-
-            return parcours;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public async Task<Parcours?> UpdateParcours(Parcours parcours)
-    {
-        try
-        {
-            var existingParcours = await _context.Parcours.FindAsync(parcours.Id);
-
-            if (existingParcours is null)
+            if (existingScore is null)
             {
                 return null;
             }
 
-            existingParcours.Name = parcours.Name;
-            existingParcours.Location = parcours.Location;
-            existingParcours.AnimalCount = parcours.AnimalCount;
+            existingScore.TotalScore = score.TotalScore;
 
             await _context.SaveChangesAsync();
 
-            return existingParcours;
+            return existingScore;
         }
         catch
         {
@@ -114,18 +51,18 @@ public class DbParcoursService
         }
     }
 
-    public async Task<bool> DeleteParcours(Parcours parcours)
+    public async Task<bool> DeleteScore(Score score)
     {
         try
         {
-            var existingParcours = await _context.Parcours.FindAsync(parcours.Id);
+            var existingScore = await _context.Scores.FindAsync(score.Id);
 
-            if (existingParcours is null)
+            if (existingScore is null)
             {
                 return false;
             }
 
-            _context.Parcours.Remove(existingParcours);
+            _context.Scores.Remove(existingScore);
 
             await _context.SaveChangesAsync();
 
