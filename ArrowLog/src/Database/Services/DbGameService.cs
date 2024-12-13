@@ -1,6 +1,5 @@
 ﻿using ArrowLog.Database.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace ArrowLog.Database.Services;
 

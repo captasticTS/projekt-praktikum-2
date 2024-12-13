@@ -1,14 +1,13 @@
 ﻿using ArrowLog.Database.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace ArrowLog.Database.Services;
 
-public class ScoreService
+public class DbScoreService
 {
     private AppDbContext _context;
 
-    public ScoreService(AppDbContext context)
+    public DbScoreService(AppDbContext context)
     {
         _context = context;
     }
