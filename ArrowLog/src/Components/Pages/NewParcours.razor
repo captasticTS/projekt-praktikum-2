@@ -2,10 +2,16 @@
 @inject NavigationManager NavigationManager
 @using MudBlazor
 @using static MudBlazor.Icons.Material
+@using Database.Services
+@using Database.Models
+@inject DbParcoursService parcoursService
+@inject ISnackbar Snackbar
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Section Title -->
     <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">New Parcours</MudText>
+
+    @(allParcours?.Count ?? -1)
 
     <MudForm>
         <MudGrid Spacing="3">
@@ -14,12 +20,18 @@
                 <MudTextField Label="Name" @bind-Value="ParcoursName" Variant=Variant.Outlined FullWidth />
             </MudItem>
 
+            <!-- Location Input -->
+            <MudItem xs="12">
+                <MudTextField Label="Location" @bind-Value="ParcoursLocation" Variant=Variant.Outlined FullWidth />
+            </MudItem>
+
             <!-- Targets Selector -->
             <MudItem xs="12">
                 <MudSelect T="int" Label="Targets" Variant=Variant.Outlined FullWidth @bind-Value="Targets">
                     @for (int i = 1; i <= 20; i++)
                     {
-                        <MudSelectItem Value="@i">@i</MudSelectItem>
+                        var tempI = i;
+                        <MudSelectItem Value="@tempI">@tempI</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
@@ -32,15 +44,50 @@
             </MudItem>
         </MudGrid>
     </MudForm>
+
+    @if (wasSuccesful)
+    {
+        <p style="color: green">created succesfully</p>
+    }
+
 </MudContainer>
 
 @code {
     private string ParcoursName = string.Empty;
+    private string ParcoursLocation = string.Empty;
     private int Targets = 9; // Default value
+    private bool wasSuccesful = false;
+    private List<Parcours>? allParcours = new();
+    private string message = "not yet initialized";
 
-    private void CreateParcours()
+    protected override async Task OnInitializedAsync()
     {
-        // Logic to create a new parcours
-        Console.WriteLine($"Parcours Created: {ParcoursName} with {Targets} targets");
+        allParcours = await parcoursService.FindParcoursByName("Bester Parcours");
+
+        if (allParcours is null)
+        {
+            message = "nothing was found";
+        }
+        else
+        {
+            message = $"entries: {allParcours.Count}";
+        }
+    }
+
+    private async void CreateParcours()
+    {
+        Parcours? parcours = new();
+
+        parcours.Name = ParcoursName;
+        parcours.Location = ParcoursLocation;
+        parcours.AnimalCount = Targets;
+
+        parcours = await parcoursService.CreateParcours(parcours);
+
+        if (parcours is not null)
+        {
+            wasSuccesful = true;
+            Snackbar.Add("nice", Severity.Success);
+        }
     }
 }

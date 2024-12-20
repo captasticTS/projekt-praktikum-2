@@ -3,6 +3,7 @@ using ArrowLog.Database;
 using MudBlazor.Services;
 using ArrowLog.Features.Login;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using ArrowLog.Database.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services.AddMudServices();
 
 // Adds DB Context for EF Core
 builder.Services.AddDbContext<AppDbContext>();
+
+// Adds CRUD services
+builder.Services.AddTransient<DbParcoursService>();
 
 // Adds Login Services
 builder.Services.AddScoped<AuthService>();

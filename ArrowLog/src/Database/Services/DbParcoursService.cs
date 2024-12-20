@@ -47,7 +47,7 @@ public class DbParcoursService
         try
         {
             var parcours = await _context.Parcours
-                .Where(x => x.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0)
+                .Where(p => p.Name.ToLower().Contains(name.ToLower()))
                 .ToListAsync();
 
             return parcours;
@@ -64,7 +64,7 @@ public class DbParcoursService
         try
         {
             var parcours = await _context.Parcours
-                .Where(x => x.Location.IndexOf(location, StringComparison.OrdinalIgnoreCase) >= 0)
+                .Where(p => p.Location.ToLower().Contains(location.ToLower()))
                 .ToListAsync();
 
             return parcours;
