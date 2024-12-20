@@ -7,7 +7,7 @@
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
 
     <!-- Enter Code Section -->
-    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Join Game</MudText>
+    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Join Game</MudText>
     <MudTextField T="string" Label="Enter Code" Variant="Variant.Outlined" FullWidth="true" />
     <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2">
         Join!
@@ -30,7 +30,7 @@
     </MudGrid>
 
     <!-- Create Game Section -->
-    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true" Color="Color.Primary">Create Game</MudText>
+    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create Game</MudText>
     <MudSelect @bind-Value="_selectedCourse" T="string" Label="Course" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
         @foreach (var course in _courses)
         {
