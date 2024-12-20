@@ -42,7 +42,7 @@ public class DbPersonService
         }
     }
 
-    public async Task<List<Person>?> FindPersonsByName(string name, NameType type)
+    public async Task<List<Person>?> FindPersonsByName(string name, NameType type = NameType.NickName)
     {
         try
         {

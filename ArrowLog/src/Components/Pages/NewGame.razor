@@ -4,6 +4,7 @@
 @using Database.Models
 @using Database.Services
 @inject DbGameService gameService
+@inject DbParcoursService parcoursService
 
 <PageTitle>NewGame</PageTitle>
 
@@ -16,9 +17,11 @@
         Join!
     </MudButton>
 
+    @(createdSuccessfully ? "created success" : "created failed")
+
     <!-- Divider -->
-    <MudDivider/>
-    <MudDivider/>
+    <MudDivider />
+    <MudDivider />
 
     <MudGrid Spacing="2" Class="mt-2">
         <MudItem xs="5" Class="d-flex align-center">
@@ -34,14 +37,19 @@
 
     <!-- Create Game Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create Game</MudText>
-    <MudSelect @bind-Value="_selectedCourse" T="string" Label="Course" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
-        @foreach (var course in _courses)
-        {
-            <MudSelectItem Value="course">@course</MudSelectItem>
-        }
-    </MudSelect>
+    <MudAutocomplete @bind-Value="_selectedCourse"
+                     SearchFunc="SearchCourses"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.None"
+                     Dense="false"
+                     Disabled="false"
+                     ReadOnly="false"
+                     Placeholder="Select a course"
+                     HelperTextOnFocus="false"
+                     Clearable="true" />
     <MudSelect @bind-Value="_selectRules" T="string" Label="Ruleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
-        @foreach (var rules in _rules){
+        @foreach (var rules in _rules)
+        {
             <MudSelectItem Value="rules">@rules</MudSelectItem>
         }
     </MudSelect>
@@ -55,33 +63,38 @@
 
 
 @code {
+    private Parcours _selectedCourse;
+    private List<string> _courses = new();
+    private bool createdSuccessfully;
+
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
 
-    private string _selectedCourse;
-    private string[] _courses =
-    {
-        "Mathematics", "Physics", "Chemistry", "Biology"
-    };
-
     private string _selectRules;
-    private string[] _rules = {"Rule1", "Rule2", "Rule3", "Rule4" };
+    private string[] _rules = { "Rule1", "Rule2", "Rule3", "Rule4" };
 
-    /*
+    // TODO
     private async void CreateGame()
     {
         Game? game = new();
+        
+        //game.
 
-        game.
+        var newGame = await gameService.CreateGame(game);
 
-        parcours = await parcoursService.CreateParcours(parcours);
-
-        if (parcours is not null)
+        if (newGame is not null)
         {
-            wasSuccesful = true;
-            Snackbar.Add("nice", Severity.Success);
+            createdSuccessfully = true;
         }
     }
-     */
 
+    private async Task<IEnumerable<Parcours>?> SearchCourses(string value, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new List<Parcours>();
+        }
+
+        return await parcoursService.FindParcoursByName(value) ?? new List<Parcours>();
+    }
 }
