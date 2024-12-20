@@ -72,7 +72,7 @@ public class DbRulsetService
 
             existingRuleset.Name = ruleset.Name;
             existingRuleset.Author = ruleset.Author;
-            existingRuleset.Points = ruleset.Points;
+            existingRuleset.HitTypes = ruleset.HitTypes;
 
             await _context.SaveChangesAsync();
 
