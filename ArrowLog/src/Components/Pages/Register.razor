@@ -12,7 +12,7 @@
     <!-- Registration Form -->
     <MudForm @ref="form">
         <MudGrid Spacing="3">
-            <!-- First Name -->
+            <!-- First Name<a href="c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor">c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor</a> -->
             <MudItem xs="12">
                 <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined FullWidth />
             </MudItem>
@@ -49,7 +49,7 @@
         <!-- Register Button -->
         <MudGrid Spacing="3" Class="mt-4">
             <MudItem xs="12" Class="d-flex justify-center">
-                <MudButton Variant.Filled Color.Primary OnClick="RegisterUser">Register</MudButton>
+                <MudButton Variant=Variant.Filled Color=Color.Primary OnClick="RegisterUser">Register</MudButton>
             </MudItem>
         </MudGrid>
     </MudForm>
@@ -59,7 +59,7 @@
         <MudItem xs="12" Class="d-flex justify-center">
             <MudText Typo="Typo.body2" Align="Align.Center">
                 Already have an account?
-                <MudButton Variant.Text Color.Secondary OnClick="GoToSignIn">Sign In</MudButton>
+                <MudButton Variant=Variant.Outlined Color=Color.Secondary OnClick="GoToSignIn">Sign In</MudButton>
             </MudText>
         </MudItem>
     </MudGrid>
@@ -109,7 +109,7 @@
 
     private void GoToSignIn()
     {
-        NavigationManager.NavigateTo("/Welcome");
+        NavigationManager.NavigateTo("/");
     }
 
     private string HashPassword(string password)

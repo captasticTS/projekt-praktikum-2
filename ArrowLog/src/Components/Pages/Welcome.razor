@@ -1,6 +1,10 @@
 ﻿@page "/"
+@using ArrowLog.Features.Login
 @using MudBlazor
 @inject NavigationManager NavigationManager
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Welcome Message -->
@@ -16,7 +20,7 @@
 
             <!-- Password Input -->
             <MudItem xs="12">
-                <MudTextField Label="Password" @bind-Value="Password" Variant=Variant.Outlined FullWidth InputType.password />
+                <MudTextField InputType="@InputType.Password" Label="Password" @bind-Value="Password" Variant=Variant.Outlined FullWidth InputType.password />
             </MudItem>
         </MudGrid>
 
@@ -27,6 +31,11 @@
             </MudItem>
         </MudGrid>
     </MudForm>
+
+    <!-- Error Message -->
+    @if (@loginFailed){
+        <p style="color: red;">@errorMessage</p>
+    }
 
     <!-- Divider with "or" -->
     <MudGrid Spacing="3" Class="mt-3">
@@ -52,11 +61,52 @@
 @code {
     private string Username = string.Empty;
     private string Password = string.Empty;
+    private bool loginFailed = false;
+    private string errorMessage = string.Empty;
+
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    protected override void OnInitialized()
+    {
+        if (IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/home");
+        }
+    }
 
     private void SignIn()
     {
-        // Logic for signing in
-        Console.WriteLine($"Signing in with Username: {Username}");
+        try
+        {
+            var person = AuthService.ValidateUser(Username, Password);
+
+            if (person != null)
+            {
+                errorMessage = "Login successful!";
+                var context = HttpContextAccessor.HttpContext;
+
+                if (context != null)
+                {
+                    context.Session.SetString("LoggedInUser", person.NickName);
+                    NavigationManager.NavigateTo("/home");
+                }
+                else
+                {
+                    loginFailed = true;
+                    errorMessage = "Session context is null. Ensure session middleware is active.";
+                }
+            }
+            else
+            {
+                loginFailed = true;
+                errorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occured: {ex.Message}";
+        }
     }
 
     private void GoToRegister()

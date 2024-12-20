@@ -13,7 +13,7 @@ public class AuthService
         _dbContext = dbContext;
     }
 
-    public Person ValidateUser(string nickname, string password)
+    public Person? ValidateUser(string nickname, string password)
     {
         var person = _dbContext.Persons.SingleOrDefault(u => u.NickName == nickname);
 
@@ -24,7 +24,7 @@ public class AuthService
         return null;
     }
 
-    public Person RegisterUser(string nickname, string password)
+    public Person? RegisterUser(string nickname, string password)
     {
         if (_dbContext.Persons.Any(u => u.NickName ==  nickname))
         {
