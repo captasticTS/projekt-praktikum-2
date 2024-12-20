@@ -3,6 +3,7 @@ using System;
 using ArrowLog.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArrowLog.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20241220065055_AddedRulesets")]
+    partial class AddedRulesets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -32,9 +35,6 @@ namespace ArrowLog.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("ParcoursId")
                         .HasColumnType("INTEGER");
 
@@ -42,8 +42,6 @@ namespace ArrowLog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
 
                     b.HasIndex("ParcoursId");
 
@@ -111,16 +109,11 @@ namespace ArrowLog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.ToTable("Rulesets");
                 });
@@ -140,6 +133,9 @@ namespace ArrowLog.Migrations
                     b.Property<int>("RulesetId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("TotalScore")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GameId");
@@ -149,28 +145,6 @@ namespace ArrowLog.Migrations
                     b.HasIndex("RulesetId");
 
                     b.ToTable("Scores");
-                });
-
-            modelBuilder.Entity("ArrowLog.Database.Models.Shot", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AttemptNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ScoreId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ValueHit")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ScoreId");
-
-                    b.ToTable("ShotsAtTargets");
                 });
 
             modelBuilder.Entity("ArrowLog.Features.Login.User", b =>
@@ -194,12 +168,6 @@ namespace ArrowLog.Migrations
 
             modelBuilder.Entity("ArrowLog.Database.Models.Game", b =>
                 {
-                    b.HasOne("ArrowLog.Database.Models.Person", "Owner")
-                        .WithMany("Games")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ArrowLog.Database.Models.Parcours", null)
                         .WithMany("Games")
                         .HasForeignKey("ParcoursId");
@@ -210,20 +178,7 @@ namespace ArrowLog.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Owner");
-
                     b.Navigation("Ruleset");
-                });
-
-            modelBuilder.Entity("ArrowLog.Database.Models.Ruleset", b =>
-                {
-                    b.HasOne("ArrowLog.Database.Models.Person", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("ArrowLog.Database.Models.Score", b =>
@@ -245,13 +200,6 @@ namespace ArrowLog.Migrations
                     b.Navigation("Ruleset");
                 });
 
-            modelBuilder.Entity("ArrowLog.Database.Models.Shot", b =>
-                {
-                    b.HasOne("ArrowLog.Database.Models.Score", null)
-                        .WithMany("Results")
-                        .HasForeignKey("ScoreId");
-                });
-
             modelBuilder.Entity("ArrowLog.Database.Models.Game", b =>
                 {
                     b.Navigation("Scores");
@@ -264,14 +212,7 @@ namespace ArrowLog.Migrations
 
             modelBuilder.Entity("ArrowLog.Database.Models.Person", b =>
                 {
-                    b.Navigation("Games");
-
                     b.Navigation("Scores");
-                });
-
-            modelBuilder.Entity("ArrowLog.Database.Models.Score", b =>
-                {
-                    b.Navigation("Results");
                 });
 #pragma warning restore 612, 618
         }

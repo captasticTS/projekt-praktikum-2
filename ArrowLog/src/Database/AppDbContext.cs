@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<Score> Scores { get; set; }
     public DbSet<Game> Games { get; set; }
     public DbSet<Parcours> Parcours { get; set; }
+    public DbSet<Ruleset> Rulesets { get; set; }
+    public DbSet<Shot> ShotsAtTargets { get; set; }
 
     public string DbPath { get; }
 
