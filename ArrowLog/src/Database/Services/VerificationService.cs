@@ -45,4 +45,11 @@ public static class VerificationService
 
         return codeOkay && dateOkay;
     }
+
+    public static bool VerifyRuleset(Ruleset ruleset)
+    {
+        var nameOkay = !string.IsNullOrEmpty(ruleset.Name);
+
+        return nameOkay;
+    }
 }

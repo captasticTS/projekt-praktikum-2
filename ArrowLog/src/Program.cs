@@ -5,6 +5,7 @@ using ArrowLog.Features.Login;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ArrowLog.Components.Pages.Services;
 using Blazored.LocalStorage;
+using ArrowLog.Database.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,8 @@ builder.Services.AddMudServices();
 
 // Adds DB Context for EF Core
 builder.Services.AddDbContext<AppDbContext>();
+
+builder.Services.AddTransient<DbPersonService>();
 
 // Adds Login Services
 builder.Services.AddScoped<AuthService>();
