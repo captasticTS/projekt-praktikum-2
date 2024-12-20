@@ -3,6 +3,8 @@ using ArrowLog.Database;
 using MudBlazor.Services;
 using ArrowLog.Features.Login;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using ArrowLog.Components.Pages.Services;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,11 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
+// Adds Theme Service
+builder.Services.AddScoped<ThemeService>();
+builder.Services.AddBlazoredLocalStorage();
+
+
 
 var app = builder.Build();
 
@@ -59,3 +66,4 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+

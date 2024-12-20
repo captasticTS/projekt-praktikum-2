@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using ArrowLog.Components.Pages.Services
+@inherits LayoutComponentBase
+@inject ThemeService ThemeService
+@implements IDisposable
+
+
 @* Required *@
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -7,7 +12,7 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="MyCustomTheme" />
+<MudThemeProvider @bind-IsDarkMode="@ThemeService.IsDarkMode" Theme="MyCustomTheme" />
 
 <MudLayout>
     <MudAppBar>
@@ -21,7 +26,7 @@
 			<NavMenu />
         </MudDrawerContainer>
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent Style="padding-bottom: 72px; padding-top: 64px;">
         @Body
         @* <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="MyCustomTheme" />
         <MudToggleIconButton @bind-Toggled="@_isDarkMode" Icon="@Icons.Material.Filled.DarkMode" Color="@Color.Default"
@@ -30,7 +35,16 @@
 </MudLayout>
 
 @code {
-    private bool _isDarkMode;
+    protected override void OnInitialized()
+    {
+        ThemeService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnChange -= StateHasChanged;
+    }
+
     MudTheme MyCustomTheme = new()
         {
             PaletteLight = new PaletteLight()
