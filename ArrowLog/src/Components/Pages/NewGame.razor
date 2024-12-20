@@ -1,6 +1,9 @@
-﻿@page "/NewGame"
+﻿@page "/new-game"
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
+@using Database.Models
+@using Database.Services
+@inject DbGameService gameService
 
 <PageTitle>NewGame</PageTitle>
 
@@ -63,5 +66,22 @@
 
     private string _selectRules;
     private string[] _rules = {"Rule1", "Rule2", "Rule3", "Rule4" };
-    
+
+    /*
+    private async void CreateGame()
+    {
+        Game? game = new();
+
+        game.
+
+        parcours = await parcoursService.CreateParcours(parcours);
+
+        if (parcours is not null)
+        {
+            wasSuccesful = true;
+            Snackbar.Add("nice", Severity.Success);
+        }
+    }
+     */
+
 }

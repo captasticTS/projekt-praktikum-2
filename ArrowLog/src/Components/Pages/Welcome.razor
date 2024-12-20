@@ -64,6 +64,17 @@
     private bool loginFailed = false;
     private string errorMessage = string.Empty;
 
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    protected override void OnInitialized()
+    {
+        if (IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/home");
+        }
+    }
+
     private void SignIn()
     {
         try
