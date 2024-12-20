@@ -1,4 +1,6 @@
-﻿using ArrowLog.Database;
+﻿using System;
+using ArrowLog.Database;
+using ArrowLog.Database.Models;
 
 namespace ArrowLog.Features.Login;
 
@@ -11,34 +13,34 @@ public class AuthService
         _dbContext = dbContext;
     }
 
-    public User ValidateUser(string username, string password)
+    public Person ValidateUser(string nickname, string password)
     {
-        var user = _dbContext.Users.SingleOrDefault(u => u.Username == username);
+        var person = _dbContext.Persons.SingleOrDefault(u => u.NickName == nickname);
 
-        if (user != null && EncryptionService.VerifyPassword(password, user.PasswordHash))
+        if (person != null && EncryptionService.VerifyPassword(password, person.PasswordHash))
         {
-            return user;
+            return person;
         }
         return null;
     }
 
-    public User RegisterUser(string username, string password)
+    public Person RegisterUser(string nickname, string password)
     {
-        if (_dbContext.Users.Any(u => u.Username == username))
+        if (_dbContext.Persons.Any(u => u.NickName ==  nickname))
         {
             return null;
         }
 
-        var user = new User()
+        var person = new Person()
         {
-            Username = username,
+            NickName = nickname,
             PasswordHash = EncryptionService.HashPassword(password)
         };
 
-        _dbContext.Users.Add(user);
+        _dbContext.Persons.Add(person);
         _dbContext.SaveChanges();
 
-        return user;
+        return person;
     }
 }
 
