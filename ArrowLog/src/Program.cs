@@ -19,6 +19,10 @@ builder.Services.AddDbContext<AppDbContext>();
 
 // Adds CRUD services
 builder.Services.AddTransient<DbParcoursService>();
+builder.Services.AddTransient<DbPersonService>();
+builder.Services.AddTransient<DbGameService>();
+builder.Services.AddTransient<DbRulsetService>();
+builder.Services.AddTransient<DbScoreService>();
 
 // Adds Login Services
 builder.Services.AddScoped<AuthService>();

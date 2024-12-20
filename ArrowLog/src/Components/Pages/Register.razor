@@ -1,13 +1,16 @@
 ﻿@page "/register"
 @using MudBlazor
 @inject NavigationManager NavigationManager
+@using ArrowLog.Database.Services
+@inject DbPersonService PersonService
+@using Database.Models
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Welcome Message -->
     <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">Create Your Account</MudText>
 
     <!-- Registration Form -->
-    <MudForm>
+    <MudForm @ref="form">
         <MudGrid Spacing="3">
             <!-- First Name<a href="c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor">c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor</a> -->
             <MudItem xs="12">
@@ -35,6 +38,14 @@
             </MudItem>
         </MudGrid>
 
+        <!-- Failure Message -->
+        @if (RegisterFailed)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-3">
+                Registration failed. Please review Input.
+            </MudAlert>
+        }
+
         <!-- Register Button -->
         <MudGrid Spacing="3" Class="mt-4">
             <MudItem xs="12" Class="d-flex justify-center">
@@ -61,15 +72,52 @@
     private string Nickname = string.Empty;
     private string Password = string.Empty;
 
-    private void RegisterUser()
+    private MudForm form;
+    private bool RegisterFailed;
+
+    private async Task RegisterUser()
     {
-        // Logic for registering a user
-        Console.WriteLine($"Registering user: {FirstName} {LastName}, Email: {Email}, Nickname: {Nickname}");
+        if (!form.IsValid)
+        {
+            RegisterFailed = true;
+            return;
+        }
+
+        // Create a new Person object
+        var newPerson = new Person
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                Email = Email,
+                NickName = Nickname,
+                PasswordHash = HashPassword(Password)
+            };
+
+        // Call the service to register the user
+        var createdPerson = await PersonService.CreatePerson(newPerson);
+
+        if (createdPerson != null)
+        {
+            Console.WriteLine("User registered successfully!");
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            RegisterFailed = true;
+        }
     }
 
     private void GoToSignIn()
     {
-        // Navigate to the Sign-In Page
         NavigationManager.NavigateTo("/Welcome");
+    }
+
+    private string HashPassword(string password)
+    {
+        // Simple hashing example (use a secure method in production, like BCrypt)
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var hash = sha256.ComputeHash(bytes);
+        return Convert.ToBase64String(hash);
     }
 }
