@@ -9,4 +9,5 @@ public class Person
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public List<Score> Scores { get; set; } = new();
+    public List<Game> Games { get; set; } = new();
 }

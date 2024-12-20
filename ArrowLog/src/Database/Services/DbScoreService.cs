@@ -40,7 +40,7 @@ public class DbScoreService
                 return null;
             }
 
-            existingScore.TotalScore = score.TotalScore;
+            existingScore.Results = score.Results;
 
             await _context.SaveChangesAsync();
 
