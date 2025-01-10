@@ -49,7 +49,7 @@
     <MudSelect T="Ruleset" Label="Ruleset" @bind-Value="_selectedRuleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
         @foreach (var ruleset in _rulesetList)
         {
-            <MudSelectItem Value="ruleset">@ruleset.Name HI</MudSelectItem>
+            <MudSelectItem Value="ruleset">@ruleset.Name</MudSelectItem>
         }
     </MudSelect>
     <MudTextField T="string" Label="Code" Value="@_generatedCode" Variant="Variant.Outlined" FullWidth="true" Disabled="true" />
