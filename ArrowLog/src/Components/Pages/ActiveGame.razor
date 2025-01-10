@@ -1,5 +1,8 @@
 ﻿@page "/ActiveGame/{uniquegameid}"
 @using ArrowLog.Features.GameLoop
+@using ArrowLog.Database.Services
+@using ArrowLog.Database.Models
+@inject DbGameService gameService
 
 <PageTitle>Active Game</PageTitle>
 
@@ -41,20 +44,24 @@
     [Parameter]
     public string? uniquegameid { get; set; }
 
+    private Game? Game { get; set; }
+
     private List<ShotsCard> Cards = new();
     private int CurrentCardIndex = 0;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        InitializeGame();
+        await InitializeGame();
     }
 
-    private void InitializeGame()
+    private async Task InitializeGame()
     {
+        Game = (await gameService.FindGameByCode(int.Parse(uniquegameid), true)).FirstOrDefault();
+
         // example card creation
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < Game.Parcours.AnimalCount; i++)
         {
-            var card = new ShotsCard(4, 7);
+            var card = new ShotsCard(Game.Ruleset.HitTypes.Count(), Game.Ruleset.HitTypes.First().Values.Count());
             card.OnCardFinished += NextCard;
             Cards.Add(card);
         }

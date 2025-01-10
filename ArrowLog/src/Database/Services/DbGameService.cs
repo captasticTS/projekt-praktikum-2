@@ -49,6 +49,9 @@ public class DbGameService
         {
             var games = await _context.Games
                 .Where(x => x.Code == code && (activityStatus == null || x.IsActive == activityStatus))
+                .Include(x => x.Ruleset)
+                    .ThenInclude(x => x.HitTypes)
+                .Include(x => x.Parcours)
                 .ToListAsync();
 
             return games;
@@ -66,6 +69,8 @@ public class DbGameService
         {
             var games = await _context.Games
                 .Where(x => x.IsActive == activityStatus)
+                .Include(x => x.Ruleset)
+                .Include(x => x.Parcours)
                 .ToListAsync();
 
             return games;
