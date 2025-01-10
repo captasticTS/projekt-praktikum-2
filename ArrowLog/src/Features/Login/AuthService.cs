@@ -1,6 +1,7 @@
 ﻿using System;
 using ArrowLog.Database;
 using ArrowLog.Database.Models;
+using ArrowLog.Database.Services;
 
 namespace ArrowLog.Features.Login;
 
@@ -17,11 +18,23 @@ public class AuthService
     {
         var person = _dbContext.Persons.SingleOrDefault(u => u.NickName == nickname);
 
-        if (person != null && EncryptionService.VerifyPassword(password, person.PasswordHash))
-        {
-            return person;
+//!!!!!!!!!Code only for testing, to be removed before going productive!!!!!!!!!
+        if (nickname == "reset" && password == "reset") 
+        { 
+            var deleteData = new DbDeleteDataService(_dbContext) ;
+            deleteData.DeleteAllData();
+            return null;
         }
-        return null;
+//TODO!!!!!!!!!Code only for testing, to be removed before going productive!!!!!!!!!
+        else
+        { 
+            if (person != null && EncryptionService.VerifyPassword(password, person.PasswordHash))
+            {
+                return person;
+            }
+            return null;
+        }
+        
     }
 
     public Person? RegisterUser(string nickname, string password)

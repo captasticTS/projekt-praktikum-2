@@ -4,14 +4,14 @@
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @using MudBlazor
-
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
 <MudText Typo="Typo.h1" Align="Align.Center">Hello, @LoggedInUser!</MudText>
 <MudText Typo="Typo.h3">Your last Game</MudText>
 <p></p>
-<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.TableChart" IconColor="Color.Primary" Size="Size.Large">All Statistics</MudButton>
+<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.TableChart" IconColor="Color.Primary" Size="Size.Large" OnClick="NavigateToAllStatistics">All Statistics</MudButton>
 <p></p>
 
 
@@ -25,4 +25,6 @@
     {
         Console.WriteLine((await _gameService.FindGameByCode(123))?.Count() ?? -1);
     }
+
+    private void NavigateToAllStatistics() => NavigationManager.NavigateTo("/History");
 }

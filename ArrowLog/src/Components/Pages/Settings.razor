@@ -1,16 +1,21 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
+﻿@page "/settings"
+@inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
 @inject ThemeService ThemeService
+@inject DbPersonService PersonService
+@inject ISnackbar Snackbar
+@inject AppDbContext DbContext
+@inject IDialogService DialogService
 @rendermode InteractiveServer
-@page "/settings"
 @using ArrowLog.Components.Pages.Services
+@using ArrowLog.Database
+@using ArrowLog.Database.Models
+@using ArrowLog.Database.Services
 @using MudBlazor
 @using static MudBlazor.Icons.Material
 
-
-
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
-    <!-- Buttons for New Ruleset and New Parcours -->
+    <!-- Existing buttons section -->
     <MudGrid>
         <MudItem xs="6" Class="d-flex justify-center">
             <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=GoToNewRuleset>New Ruleset</MudButton>
@@ -19,30 +24,47 @@
             <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=GoToNewParcours>New Parcours</MudButton>
         </MudItem>
     </MudGrid>
-
     <MudDivider Class="my-4" />
 
     <!-- Personal Info Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">Personal Info</MudText>
-    <MudForm>
+    <MudForm @ref="form">
         <MudGrid Spacing="3">
             <MudItem xs="6">
-                <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined />
+                <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined Required="true" />
             </MudItem>
             <MudItem xs="6">
-                <MudTextField Label="Last Name" @bind-Value="LastName" Variant=Variant.Outlined />
+                <MudTextField Label="Last Name" @bind-Value="LastName" Variant=Variant.Outlined Required="true" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Label="Username" @bind-Value="Username" Variant=Variant.Outlined />
+                <MudTextField Label="Username" @bind-Value="Username" Variant=Variant.Outlined Required="true" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Label="E-Mail" @bind-Value="Email" Variant=Variant.Outlined />
+                <MudTextField Label="E-Mail" @bind-Value="Email" Variant=Variant.Outlined Required="true" />
             </MudItem>
         </MudGrid>
     </MudForm>
 
     <!-- Actions Section -->
     <MudGrid Spacing="3" Class="mt-4">
+        <!-- New buttons for Update Info and Logout -->
+        <MudItem xs="12" sm="6">
+            <MudButton Variant=Variant.Filled Color=Color.Primary FullWidth OnClick="UpdateUserInfo"
+                       Disabled="@_isSaving">
+                @if (_isSaving)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Updating...</MudText>
+                }
+                else
+                {
+                    @("Update Info")
+                }
+            </MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudButton Variant=Variant.Filled Color=Color.Secondary FullWidth OnClick="LogoutUser">Logout</MudButton>
+        </MudItem>
         <MudItem xs="12" sm="6">
             <MudButton Variant=Variant.Filled Color=Color.Primary FullWidth OnClick="ResetPassword">Reset Password</MudButton>
         </MudItem>
@@ -66,38 +88,146 @@
 </MudContainer>
 
 @code {
+    private MudForm form;
+    private bool _isSaving;
+    private Person? _currentUser;
     private string FirstName = string.Empty;
     private string LastName = string.Empty;
     private string Username = string.Empty;
     private string Email = string.Empty;
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserData();
+    }
+
+    private async Task LoadUserData()
+    {
+        if (!string.IsNullOrEmpty(LoggedInUser))
+        {
+            var users = await PersonService.FindPersonsByName(LoggedInUser, DbPersonService.NameType.NickName);
+            _currentUser = users?.FirstOrDefault();
+
+            if (_currentUser != null)
+            {
+                FirstName = _currentUser.FirstName;
+                LastName = _currentUser.LastName;
+                Username = _currentUser.NickName;
+                Email = _currentUser.Email;
+            }
+        }
+    }
+
+    private async Task UpdateUserInfo()
+    {
+        if (_currentUser == null)
+        {
+            Snackbar.Add("User not found", Severity.Error);
+            return;
+        }
+
+        await form.Validate();
+        if (!form.IsValid)
+        {
+            Snackbar.Add("Please fill all required fields", Severity.Warning);
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            // Check if username is being changed and if it's already taken
+            if (Username != _currentUser.NickName)
+            {
+                var existingUsers = await PersonService.FindPersonsByName(Username, DbPersonService.NameType.NickName);
+                if (existingUsers?.Any() == true)
+                {
+                    Snackbar.Add("Username already taken", Severity.Error);
+                    return;
+                }
+            }
+
+            _currentUser.FirstName = FirstName;
+            _currentUser.LastName = LastName;
+            _currentUser.NickName = Username;
+            _currentUser.Email = Email;
+
+            var result = await PersonService.UpdatePerson(_currentUser);
+
+            if (result != null)
+            {
+                Snackbar.Add("Profile updated successfully", Severity.Success);
+                // Update session if username changed
+                if (Username != LoggedInUser)
+                {
+                    HttpContextAccessor.HttpContext?.Session.SetString("LoggedInUser", Username);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Failed to update profile", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task DeleteAccount()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to delete your account? This action cannot be undone.",
+            yesText: "Delete", cancelText: "Cancel",
+            options: new DialogOptions { MaxWidth = MaxWidth.ExtraSmall });
+
+        if (result == true && _currentUser != null)
+        {
+            var deleted = await PersonService.DeletePerson(_currentUser);
+            if (deleted)
+            {
+                await LogoutUser();
+                Snackbar.Add("Account deleted successfully", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to delete account", Severity.Error);
+            }
+        }
+    }
+
+    private async Task LogoutUser()
+    {
+        HttpContextAccessor.HttpContext?.Session.Clear();
+        NavigationManager.NavigateTo("/", true);
+    }
 
     private void ResetPassword()
     {
-        // Logic for resetting password
+        // Logic for resetting password will be implemented later
         Console.WriteLine("Password Reset");
     }
 
     private void ResetProgress()
     {
-        // Logic for resetting progress
+        // Logic for resetting progress will be implemented later
         Console.WriteLine("Progress Reset");
     }
 
-    private void DeleteAccount()
-    {
-        // Logic for deleting account
-        Console.WriteLine("Account Deleted");
-    }
     private void GoToNewRuleset()
     {
-        // Navigate to the New Ruleset Page (if it exists)
         NavigationManager.NavigateTo("/new-ruleset");
     }
 
     private void GoToNewParcours()
     {
-        // Navigate to the New Parcours Page
         NavigationManager.NavigateTo("/new-parcours");
     }
 }

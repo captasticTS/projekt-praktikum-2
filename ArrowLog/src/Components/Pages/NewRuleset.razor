@@ -1,5 +1,14 @@
 ﻿@page "/new-ruleset"
+@using ArrowLog.Database
+@using Microsoft.EntityFrameworkCore
 @using MudBlazor
+@using ArrowLog.Database.Models
+@using ArrowLog.Database.Services
+@inject DbRulsetService RulesetService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject AppDbContext DbContext
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Section Title -->
@@ -66,10 +75,23 @@
             </MudItem>
         </MudGrid>
 
-        <!-- Save Button -->
+        <!-- Add loading state to Save button -->
         <MudGrid Spacing="3" Class="mt-4">
             <MudItem xs="12" Class="d-flex justify-center">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRuleset">SAVE</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="SaveRuleset"
+                           Disabled="@_isSaving">
+                    @if (_isSaving)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">Saving...</MudText>
+                    }
+                    else
+                    {
+                        @("SAVE")
+                    }
+                </MudButton>
             </MudItem>
         </MudGrid>
     </MudForm>
@@ -137,16 +159,87 @@
         HitOptions.Remove(hitOption);
     }
 
-    // Save the ruleset
-    private void SaveRuleset()
-    {
-        Console.WriteLine($"Ruleset Saved: {RulesetName} with {Attempts} attempts and {HitOptions.Count} hitoptions.");
-    }
-
     // HitOption class
     public class HitOption
     {
         public string Name { get; set; }
         public List<int> Scores { get; set; } = new List<int>();
     }
+
+
+
+
+
+
+
+    private bool _isSaving = false;
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
+
+    private async Task SaveRuleset()
+    {
+        if (string.IsNullOrWhiteSpace(RulesetName))
+        {
+            Snackbar.Add("Please enter a ruleset name", Severity.Warning);
+            return;
+        }
+
+        if (!HitOptions.Any())
+        {
+            Snackbar.Add("Please add at least one hit option", Severity.Warning);
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            // Get the current user
+            var author = await DbContext.Persons
+                .FirstOrDefaultAsync(p => p.NickName == LoggedInUser);
+
+            if (author == null)
+            {
+                Snackbar.Add("User not found", Severity.Error);
+                return;
+            }
+
+            // Convert HitOptions to HitTypes
+            var hitTypes = HitOptions.Select(ho => new HitType
+                {
+                    Title = ho.Name,
+                    Values = ho.Scores
+                }).ToList();
+
+            // Create new ruleset
+            var ruleset = new Ruleset
+                {
+                    Name = RulesetName,
+                    Author = author,
+                    HitTypes = hitTypes
+                };
+
+            // Save to database
+            var result = await RulesetService.CreateRulset(ruleset);
+
+            if (result != null)
+            {
+                Snackbar.Add("Ruleset created successfully!", Severity.Success);
+                NavigationManager.NavigateTo("/Settings"); // Assuming you have a rulesets list page
+            }
+            else
+            {
+                Snackbar.Add("Failed to create ruleset. It might already exist.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+
 }
