@@ -1,5 +1,10 @@
 ﻿@page "/new-ruleset"
 @using MudBlazor
+@using Database.Services
+@inject DbRulsetService RulesetService
+@using Database.Models
+@inject IHttpContextAccessor HttpContextAccessor
+@inject DbPersonService PersonService
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Section Title -->
@@ -25,45 +30,60 @@
 
         <!-- Hitoptions Section -->
         <MudText Typo="Typo.h6" Align="Align.Start" Class="my-3">Hitoptions</MudText>
+        <!-- Hitoptions Section -->
+        <MudText Typo="Typo.h6" Align="Align.Start" Class="my-3">Hitoptions</MudText>
         <MudGrid>
             @foreach (var hitOption in HitOptions)
             {
                 <MudItem xs="12">
                     <MudGrid Spacing="2" Align="Align.center">
+                        <!-- Hitoption Name -->
                         <MudItem xs="3">
-                            <MudText Typo="Typo.body1">@hitOption.Name</MudText>
+                            <MudTextField Label="Name" @bind-Value="hitOption.Name" Variant="Variant.Outlined" FullWidth />
                         </MudItem>
-                        <MudItem xs="3">
-                            <MudSelect T="int" @bind-Value="hitOption.Score1" Variant=Variant.Outlined FullWidth>
-                                @for (int i = 1; i <= 10; i++)
-                                {
-                                    <MudSelectItem Value="@i">@i</MudSelectItem>
+
+                        <!-- Dynamic Scores -->
+                        @for (int i = 0; i < hitOption.Scores.Count; i++)
+                        {
+                            <MudItem xs="2">
+                                @{
+                                    string scoreLabel = $"Score {i + 1}";
                                 }
-                            </MudSelect>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudSelect T="int" @bind-Value="hitOption.Score2" Variant=Variant.Outlined FullWidth>
-                                @for (int i = 1; i <= 10; i++)
-                                {
-                                    <MudSelectItem Value="@i">@i</MudSelectItem>
-                                }
-                            </MudSelect>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudSelect T="int" @bind-Value="hitOption.Score3" Variant=Variant.Outlined FullWidth>
-                                @for (int i = 1; i <= 10; i++)
-                                {
-                                    <MudSelectItem Value="@i">@i</MudSelectItem>
-                                }
-                            </MudSelect>
-                        </MudItem>
+                                <MudSelect T="int" Label="@scoreLabel" @bind-Value="hitOption.Scores[i]" Variant="Variant.Outlined" FullWidth>
+                                    @for (int j = 1; j <= 10; j++)
+                                    {
+                                        <MudSelectItem Value="@j">@j</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                        }
+
+                        <!-- Add Score Button -->
                         <MudItem xs="1">
-                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Color.Error OnClick="() => RemoveHitOption(hitOption)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Size="Size.Small" OnClick="() => AddScore(hitOption)" />
+                        </MudItem>
+
+                        <!-- Remove Score Button -->
+                        <MudItem xs="1">
+                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Color="Color.Error" Size="Size.Small" OnClick="() => RemoveScore(hitOption)" Disabled="@(!hitOption.Scores.Any())" />
+                        </MudItem>
+
+                        <!-- Remove HitOption Button -->
+                        <MudItem xs="1">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="() => RemoveHitOption(hitOption)" />
                         </MudItem>
                     </MudGrid>
                 </MudItem>
             }
         </MudGrid>
+
+        <!-- Add Hitoption Button -->
+        <MudGrid Spacing="3" Class="mt-3">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Size="Size.Large" OnClick="AddHitOption" />
+            </MudItem>
+        </MudGrid>
+
 
         <!-- Add Hitoption Button -->
         <MudGrid Spacing="3" Class="mt-3">
@@ -84,17 +104,19 @@
 @code {
     private string RulesetName = string.Empty;
     private int Attempts = 3; // Default value
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
+
 
     private List<HitOption> HitOptions = new()
     {
-        new HitOption { Name = "Spot", Score1 = 9, Score2 = 7, Score3 = 5 },
-        new HitOption { Name = "Kill", Score1 = 7, Score2 = 5, Score3 = 3 },
-        new HitOption { Name = "Body", Score1 = 5, Score2 = 3, Score3 = 1 }
+        new HitOption { Name = "Spot", Scores = new List<int> { 9, 7, 5 } },
+        new HitOption { Name = "Kill", Scores = new List<int> { 7, 5, 3 } },
+        new HitOption { Name = "Body", Scores = new List<int> { 5, 3, 1 } }
     };
 
     private void AddHitOption()
     {
-        HitOptions.Add(new HitOption { Name = $"Option {HitOptions.Count + 1}", Score1 = 1, Score2 = 1, Score3 = 1 });
+        HitOptions.Add(new HitOption { Name = $"Option {HitOptions.Count + 1}", Scores = new List<int> { 1 } });
     }
 
     private void RemoveHitOption(HitOption hitOption)
@@ -102,17 +124,63 @@
         HitOptions.Remove(hitOption);
     }
 
-    private void SaveRuleset()
+    private void AddScore(HitOption hitOption)
     {
-        // Logic to save the ruleset
-        Console.WriteLine($"Ruleset Saved: {RulesetName} with {Attempts} attempts and {HitOptions.Count} hitoptions.");
+        hitOption.Scores.Add(1); // Add a default score of 1
+    }
+
+    private void RemoveScore(HitOption hitOption)
+    {
+        if (hitOption.Scores.Any())
+        {
+            hitOption.Scores.RemoveAt(hitOption.Scores.Count - 1); // Remove the last score
+        }
     }
 
     public class HitOption
     {
         public string Name { get; set; }
-        public int Score1 { get; set; }
-        public int Score2 { get; set; }
-        public int Score3 { get; set; }
+        public List<int> Scores { get; set; } = new List<int>();
     }
+    public class LocalRuleset
+    {
+        public string Name { get; set; }
+        public List<LocalHitType> HitTypes { get; set; }
+    }
+
+    public class LocalHitType
+    {
+        public string Name { get; set; }
+        public List<int> Scores { get; set; }
+    }
+
+
+    private async Task SaveRuleset()
+    {
+
+        var ruleset = new ArrowLog.Database.Models.Ruleset
+            {
+                Name = RulesetName,
+                Author = PersonService.FindPersonsByName(LoggedInUser).Result[0],
+                HitTypes = HitOptions.Select(hit => new ArrowLog.Database.Models.HitType
+                {
+                    Title = hit.Name,
+                    Values = hit.Scores
+                }).ToList()
+            };
+
+        var createdRuleset = await RulesetService.CreateRulset(ruleset);
+
+        if (createdRuleset != null)
+        {
+            Console.WriteLine("Ruleset saved successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Failed to save the ruleset. Ensure the name is unique and data is valid.");
+        }
+    }
+
+
+
 }
