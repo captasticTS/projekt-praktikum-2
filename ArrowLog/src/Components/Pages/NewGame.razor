@@ -1,28 +1,28 @@
 ﻿@page "/new-game"
+@using ArrowLog.Database
+@using ArrowLog.Database.Seeders
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @using Database.Models
 @using Database.Services
-@inject DbGameService gameService
+@using Microsoft.EntityFrameworkCore
+@inject DbGameService GameService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject AppDbContext DbContext
 @inject DbParcoursService parcoursService
 
 <PageTitle>NewGame</PageTitle>
-
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
-
     <!-- Enter Code Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Join Game</MudText>
-    <MudTextField T="string" Label="Enter Code" Variant="Variant.Outlined" FullWidth="true" />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2">
+    <MudTextField @bind-Value="_joinCode" T="string" Label="Enter Code" Variant="Variant.Outlined" FullWidth="true" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2" OnClick="JoinGame">
         Join!
     </MudButton>
-
-    @(createdSuccessfully ? "created success" : "created failed")
-
     <!-- Divider -->
     <MudDivider />
     <MudDivider />
-
     <MudGrid Spacing="2" Class="mt-2">
         <MudItem xs="5" Class="d-flex align-center">
             <MudDivider Class="my-2" />
@@ -34,7 +34,6 @@
             <MudDivider Class="my-2" />
         </MudItem>
     </MudGrid>
-
     <!-- Create Game Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create Game</MudText>
     <MudAutocomplete @bind-Value="_selectedCourse"
@@ -53,40 +52,147 @@
             <MudSelectItem Value="rules">@rules</MudSelectItem>
         }
     </MudSelect>
-    <MudTextField T="string" Label="Code" Variant="Variant.Outlined" FullWidth="true" Disabled="true" />
-
-    <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true" Class="mt-2">
+    <MudTextField T="string" Label="Code" Value="@_generatedCode" Variant="Variant.Outlined" FullWidth="true" Disabled="true" />
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true" Class="mt-2" OnClick="CreateGame" Disabled="@(!CanCreateGame)">
         Start!
     </MudButton>
-
 </MudContainer>
-
 
 @code {
     private Parcours _selectedCourse;
+    private List<Ruleset> _rules;
+    private string _selectRules;
     private List<string> _courses = new();
     private bool createdSuccessfully;
 
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
 
-    private string _selectRules;
-    private string[] _rules = { "Rule1", "Rule2", "Rule3", "Rule4" };
+    private string _joinCode = string.Empty;
+    private string _generatedCode = string.Empty;
+    private List<Parcours> _parcoursList = new();
+    private List<Ruleset> _rulesetList = new();
+    private Parcours? _selectedParcours;
+    private Ruleset? _selectedRuleset;
+    private Random _random = new Random();
 
-    // TODO
-    private async void CreateGame()
+    private bool CanCreateGame => IsUserLoggedIn && _selectedParcours != null && _selectedRuleset != null;
+
+    protected override async Task OnInitializedAsync()
     {
-        Game? game = new();
-        
-        //game.
+        await LoadData();
+        await GenerateUniqueCode();
+    }
 
-        var newGame = await gameService.CreateGame(game);
+    private async Task LoadData()
+    {
+        _parcoursList = await DbContext.Parcours.ToListAsync();
+        _rulesetList = await DbContext.Rulesets.ToListAsync();
 
-        if (newGame is not null)
+        // If no data exists, seed the database
+        if (!_parcoursList.Any() || !_rulesetList.Any())
         {
-            createdSuccessfully = true;
+            await DbSeeder.SeedData(DbContext);
+            _parcoursList = await DbContext.Parcours.ToListAsync();
+            _rulesetList = await DbContext.Rulesets.ToListAsync();
         }
     }
+
+    private async Task GenerateUniqueCode()
+    {
+        bool isUnique = false;
+        while (!isUnique)
+        {
+            int code = _random.Next(100000, 1000000); // Generates 6-digit number
+            var existingGames = await GameService.FindGameByCode(code, true);
+            if (existingGames == null || !existingGames.Any())
+            {
+                _generatedCode = code.ToString();
+                isUnique = true;
+            }
+        }
+    }
+
+    private async Task CreateGame()
+    {
+        if (!CanCreateGame)
+        {
+            Snackbar.Add("Please select a course and ruleset first.", Severity.Warning);
+            return;
+        }
+
+        var owner = await DbContext.Persons.FirstOrDefaultAsync(p => p.NickName == LoggedInUser);
+        if (owner == null)
+        {
+            Snackbar.Add("User not found.", Severity.Error);
+            return;
+        }
+
+        var game = new Game
+            {
+                Date = DateTime.Now,
+                Code = int.Parse(_generatedCode),
+                IsActive = true,
+                Owner = owner,
+                Parcours = _selectedParcours!,
+                Ruleset = _selectedRuleset!
+            };
+
+        var result = await GameService.CreateGame(game);
+        if (result != null)
+        {
+            Snackbar.Add("Game created successfully!", Severity.Success);
+            NavigationManager.NavigateTo("/history");
+        }
+        else
+        {
+            Snackbar.Add("Failed to create game.", Severity.Error);
+            await GenerateUniqueCode(); // Generate new code in case of failure
+        }
+    }
+
+    private async Task JoinGame()
+    {
+        if (string.IsNullOrWhiteSpace(_joinCode))
+        {
+            Snackbar.Add("Please enter a game code.", Severity.Warning);
+            return;
+        }
+
+        if (int.TryParse(_joinCode, out int code))
+        {
+            var games = await GameService.FindGameByCode(code, true);
+            if (games != null && games.Any())
+            {
+                NavigationManager.NavigateTo($"/game/{code}");
+            }
+            else
+            {
+                Snackbar.Add("Game not found or inactive.", Severity.Warning);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Invalid game code format.", Severity.Error);
+        }
+    }
+
+        /*
+       private async void CreateGame()
+       {
+       Game? game = new();
+
+       game.
+
+       parcours = await parcoursService.CreateParcours(parcours);
+
+       if (parcours is not null)
+           {
+           wasSuccesful = true;
+           Snackbar.Add("nice", Severity.Success);
+    }
+    }
+    */
 
     private async Task<IEnumerable<Parcours>?> SearchCourses(string value, CancellationToken cancellationToken)
     {
