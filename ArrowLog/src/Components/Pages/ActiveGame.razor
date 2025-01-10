@@ -1,4 +1,4 @@
-﻿@page "/ActiveGame"
+﻿@page "/ActiveGame/{uniquegameid}"
 @using ArrowLog.Features.GameLoop
 
 <PageTitle>Active Game</PageTitle>
@@ -38,6 +38,9 @@
 </MudContainer>
 
 @code {
+    [Parameter]
+    public string? uniquegameid { get; set; }
+
     private List<ShotsCard> Cards = new();
     private int CurrentCardIndex = 0;
 
