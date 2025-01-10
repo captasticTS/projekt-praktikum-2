@@ -8,12 +8,12 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudText Typo="Typo.h2">Hello, world!</MudText>
-
+<MudText Typo="Typo.h1" Align="Align.Center">Hello, @LoggedInUser!</MudText>
+<MudText Typo="Typo.h3">Your last Game</MudText>
 <p></p>
 <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.TableChart" IconColor="Color.Primary" Size="Size.Large">All Statistics</MudButton>
 <p></p>
-<MudText Typo="Typo.h3">Your last Game</MudText>
+
 
 @code{
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
