@@ -36,7 +36,7 @@
     </MudGrid>
     <!-- Create Game Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create Game</MudText>
-    <MudAutocomplete @bind-Value="_selectedCourse"
+    <MudAutocomplete @bind-Value="_selectedParcours"
                      SearchFunc="SearchCourses"
                      Variant="Variant.Outlined"
                      Margin="Margin.None"
@@ -159,7 +159,7 @@
             var games = await GameService.FindGameByCode(code, true);
             if (games != null && games.Any())
             {
-                NavigationManager.NavigateTo($"/game/{code}");
+                NavigationManager.NavigateTo($"/ActiveGame/{code}");
             }
             else
             {
