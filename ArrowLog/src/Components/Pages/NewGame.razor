@@ -1,4 +1,4 @@
-﻿@page "/new-game"
+﻿@page "/newgame"
 @using ArrowLog.Database
 @using ArrowLog.Database.Seeders
 @using Microsoft.AspNetCore.Http
@@ -46,10 +46,10 @@
                      Placeholder="Select a course"
                      HelperTextOnFocus="false"
                      Clearable="true" />
-    <MudSelect @bind-Value="_selectRules" T="string" Label="Ruleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
-        @foreach (var rules in _rules)
+    <MudSelect T="Ruleset" Label="Ruleset" @bind-Value="_selectedRuleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
+        @foreach (var ruleset in _rulesetList)
         {
-            <MudSelectItem Value="rules">@rules</MudSelectItem>
+            <MudSelectItem Value="ruleset">@ruleset.Name HI</MudSelectItem>
         }
     </MudSelect>
     <MudTextField T="string" Label="Code" Value="@_generatedCode" Variant="Variant.Outlined" FullWidth="true" Disabled="true" />
@@ -60,12 +60,7 @@
 
 @code {
     private Parcours _selectedCourse;
-    private List<Ruleset> _rules;
-    private string _selectRules;
-    private List<string> _courses = new();
-    private bool createdSuccessfully;
-
-    private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
 
     private string _joinCode = string.Empty;
@@ -177,23 +172,6 @@
         }
     }
 
-        /*
-       private async void CreateGame()
-       {
-       Game? game = new();
-
-       game.
-
-       parcours = await parcoursService.CreateParcours(parcours);
-
-       if (parcours is not null)
-           {
-           wasSuccesful = true;
-           Snackbar.Add("nice", Severity.Success);
-    }
-    }
-    */
-
     private async Task<IEnumerable<Parcours>?> SearchCourses(string value, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -204,3 +182,6 @@
         return await parcoursService.FindParcoursByName(value) ?? new List<Parcours>();
     }
 }
+
+
+           
