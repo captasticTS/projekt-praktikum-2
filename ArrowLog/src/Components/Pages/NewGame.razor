@@ -10,6 +10,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject AppDbContext DbContext
+@inject DbParcoursService parcoursService
 
 <PageTitle>NewGame</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
@@ -35,12 +36,16 @@
     </MudGrid>
     <!-- Create Game Section -->
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Create Game</MudText>
-    <MudSelect T="Parcours" Label="Course" @bind-Value="_selectedParcours" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
-        @foreach (var parcours in _parcoursList)
-        {
-            <MudSelectItem Value="parcours">@parcours.Name - @parcours.Location</MudSelectItem>
-        }
-    </MudSelect>
+    <MudAutocomplete @bind-Value="_selectedCourse"
+                     SearchFunc="SearchCourses"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.None"
+                     Dense="false"
+                     Disabled="false"
+                     ReadOnly="false"
+                     Placeholder="Select a course"
+                     HelperTextOnFocus="false"
+                     Clearable="true" />
     <MudSelect T="Ruleset" Label="Ruleset" @bind-Value="_selectedRuleset" Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
         @foreach (var ruleset in _rulesetList)
         {
@@ -54,6 +59,7 @@
 </MudContainer>
 
 @code {
+    private Parcours _selectedCourse;
     private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
 
@@ -166,22 +172,15 @@
         }
     }
 
-        /*
-       private async void CreateGame()
-       {
-       Game? game = new();
+    private async Task<IEnumerable<Parcours>?> SearchCourses(string value, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new List<Parcours>();
+        }
 
-       game.
-
-       parcours = await parcoursService.CreateParcours(parcours);
-
-       if (parcours is not null)
-           {
-           wasSuccesful = true;
-           Snackbar.Add("nice", Severity.Success);
+        return await parcoursService.FindParcoursByName(value) ?? new List<Parcours>();
     }
-    }
-    */
 }
 
 

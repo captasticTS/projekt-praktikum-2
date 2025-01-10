@@ -7,5 +7,10 @@ public class Parcours
     public string Location { get; set; } = string.Empty;
     public int AnimalCount { get; set; }
     public List<Game> Games { get; set; } = new();
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }
 
