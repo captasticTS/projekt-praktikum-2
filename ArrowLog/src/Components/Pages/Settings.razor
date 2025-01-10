@@ -47,6 +47,24 @@
 
     <!-- Actions Section -->
     <MudGrid Spacing="3" Class="mt-4">
+        <!-- New buttons for Update Info and Logout -->
+        <MudItem xs="12" sm="6">
+            <MudButton Variant=Variant.Filled Color=Color.Primary FullWidth OnClick="UpdateUserInfo"
+                       Disabled="@_isSaving">
+                @if (_isSaving)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Updating...</MudText>
+                }
+                else
+                {
+                    @("Update Info")
+                }
+            </MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudButton Variant=Variant.Filled Color=Color.Secondary FullWidth OnClick="LogoutUser">Logout</MudButton>
+        </MudItem>
         <MudItem xs="12" sm="6">
             <MudButton Variant=Variant.Filled Color=Color.Primary FullWidth OnClick="ResetPassword">Reset Password</MudButton>
         </MudItem>
@@ -65,25 +83,6 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudButton Variant=Variant.Filled Color=Color.Error FullWidth OnClick="DeleteAccount">Delete Account</MudButton>
-        </MudItem>
-
-        <!-- New buttons for Update Info and Logout -->
-        <MudItem xs="12" sm="6">
-            <MudButton Variant=Variant.Filled Color=Color.Primary FullWidth OnClick="UpdateUserInfo"
-                       Disabled="@_isSaving">
-                @if (_isSaving)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Updating...</MudText>
-                }
-                else
-                {
-                    @("Update Info")
-                }
-            </MudButton>
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudButton Variant=Variant.Filled Color=Color.Secondary FullWidth OnClick="LogoutUser">Logout</MudButton>
         </MudItem>
     </MudGrid>
 </MudContainer>
