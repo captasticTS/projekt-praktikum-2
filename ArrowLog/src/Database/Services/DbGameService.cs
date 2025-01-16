@@ -22,7 +22,7 @@ public class DbGameService
             }
 
             var alreadyExists = await _context.Games
-                .AnyAsync(x => x.Code == game.Code && x.IsActive);
+                .AnyAsync(x => x.Code == game.Code && x.activePlayers.Any());
 
             // return early if there is already an existing game with same code
             if (alreadyExists && game.IsActive)
@@ -48,10 +48,12 @@ public class DbGameService
         try
         {
             var games = await _context.Games
-                .Where(x => x.Code == code && (activityStatus == null || x.IsActive == activityStatus))
+                .Where(x => x.Code == code && (activityStatus == null || x.activePlayers.Any() == activityStatus))
                 .Include(x => x.Ruleset)
                     .ThenInclude(x => x.HitTypes)
                 .Include(x => x.Parcours)
+                .Include(x => x.Owner)
+                .Include(x => x.activePlayers)
                 .ToListAsync();
 
             return games;
@@ -68,7 +70,7 @@ public class DbGameService
         try
         {
             var games = await _context.Games
-                .Where(x => x.IsActive == activityStatus)
+                .Where(x => x.activePlayers.Any() == activityStatus)
                 .Include(x => x.Ruleset)
                 .Include(x => x.Parcours)
                 .ToListAsync();
@@ -109,8 +111,6 @@ public class DbGameService
             {
                 return null;
             }
-
-            existingGame.IsActive = game.IsActive;
 
             await _context.SaveChangesAsync();
 

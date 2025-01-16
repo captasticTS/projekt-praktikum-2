@@ -2,13 +2,13 @@
 @using ArrowLog.Database
 @using ArrowLog.Database.Seeders
 @using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor HttpContextAccessor
 @using Database.Models
 @using Database.Services
 @using Microsoft.EntityFrameworkCore
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ISnackbar Snackbar
 @inject DbGameService GameService
 @inject NavigationManager NavigationManager
-@inject ISnackbar Snackbar
 @inject AppDbContext DbContext
 @inject DbParcoursService parcoursService
 
@@ -62,6 +62,8 @@
     private Parcours _selectedCourse;
     private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    private Person currentUser;
 
     private string _joinCode = string.Empty;
     private string _generatedCode = string.Empty;
@@ -127,17 +129,17 @@
             {
                 Date = DateTime.Now,
                 Code = int.Parse(_generatedCode),
-                IsActive = true,
                 Owner = owner,
                 Parcours = _selectedParcours,
-                Ruleset = _selectedRuleset!
+                Ruleset = _selectedRuleset!,
+                activePlayers = new List<Person>() { owner }
             };
 
         var result = await GameService.CreateGame(game);
         if (result != null)
         {
             Snackbar.Add("Game created successfully!", Severity.Success);
-            NavigationManager.NavigateTo("/history");
+            NavigationManager.NavigateTo($"/ActiveGame/{_generatedCode}");
         }
         else
         {

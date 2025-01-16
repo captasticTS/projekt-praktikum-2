@@ -1,13 +1,40 @@
 ﻿@page "/ActiveGame/{uniquegameid}"
+@inject IHttpContextAccessor HttpContextAccessor
 @using ArrowLog.Features.GameLoop
 @using ArrowLog.Database.Services
 @using ArrowLog.Database.Models
 @inject DbGameService gameService
+@inject DbPersonService personService
+@inject NavigationManager navigationManager
 
 <PageTitle>Active Game</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Active Game</MudText>
+
+    @if (Game is not null)
+    {
+        <div class="d-flex flex-column align-items-center mb-4">
+            <MudText Class="text-center text-primary font-weight-bold">
+                Willkommen zum Spiel, <strong>@LoggedInUser</strong>
+            </MudText>
+            <MudText Class="text-center mt-3">
+                <strong>Parcours:</strong> @Game.Parcours.Name
+                <span class="mx-2">|</span>
+                <strong>Ruleset:</strong> @Game.Ruleset.Name
+                <span class="mx-2">|</span>
+                <strong>Code:</strong> @Game.Code
+                <span class="mx-2">|</span>
+                <strong>Von:</strong> @Game.Owner.NickName
+            </MudText>
+        </div>
+    }
+    else
+    {
+        <MudText>
+            loading...
+        </MudText>
+    }
 
     @if (Cards.Any())
     {
@@ -38,11 +65,44 @@
     {
         <MudText Typo="Typo.body1" Align="Align.Center">No active data to display.</MudText>
     }
+
+    @if (Game is not null)
+    {
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2 mb-4" OnClick="FinishGame">
+            Spiel abschließen
+        </MudButton>
+
+        <div class="d-flex flex-column align-items-center mb-4">
+            <MudText Class="text-center text-primary font-weight-bold">
+                Aktive Spieler:
+            </MudText>
+            <MudList T="Person" Class="text-center mt-3">
+                @foreach(var person in Game.activePlayers)
+                {
+                    <MudListItem>
+                        @person.NickName
+                    </MudListItem>
+                }
+            </MudList>
+        </div>
+    }
+    else
+    {
+        <MudText>
+            loading...
+        </MudText>
+    }
+
 </MudContainer>
 
 @code {
     [Parameter]
     public string? uniquegameid { get; set; }
+
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    private Person? currentUser { get; set; } = new();
 
     private Game? Game { get; set; }
 
@@ -51,12 +111,30 @@
 
     protected override async Task OnInitializedAsync()
     {
+        currentUser = (await personService.FindPersonsByName(LoggedInUser))?.FirstOrDefault();
+
+        if (currentUser is null)
+        {
+            return;
+        }
+
         await InitializeGame();
     }
 
     private async Task InitializeGame()
     {
         Game = (await gameService.FindGameByCode(int.Parse(uniquegameid), true)).FirstOrDefault();
+
+        if (Game is null)
+        {
+            return;
+        }
+
+        if (!Game.activePlayers.Contains(currentUser))
+        {
+            Game.activePlayers.Add(currentUser);
+            await gameService.UpdateGame(Game);
+        }
 
         // example card creation
         for (int i = 0; i < Game.Parcours.AnimalCount; i++)
@@ -74,6 +152,13 @@
             shot.SelectOption(value.Value);
             //StateHasChanged();
         }
+    }
+
+    private async Task FinishGame()
+    {
+        Game.activePlayers.Remove(currentUser);
+        gameService.UpdateGame(Game);
+        navigationManager.NavigateTo($"/");
     }
 
     private void NextCard()
