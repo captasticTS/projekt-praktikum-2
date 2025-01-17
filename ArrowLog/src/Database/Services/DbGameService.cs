@@ -101,6 +101,24 @@ public class DbGameService
         }
     }
 
+    public async Task<Game?> FindGameById(int id)
+    {
+        try
+        {
+            var game = await _context.Games
+                .Include(x => x.Ruleset)
+                .Include(x => x.Parcours)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            return game;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
     public async Task<Game?> UpdateGame(Game game)
     {
         try
