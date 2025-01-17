@@ -2,6 +2,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @using ArrowLog.Features.GameLoop
 @using ArrowLog.Database.Services
+@using System.Text.Json
 @using ArrowLog.Database.Models
 @inject DbGameService gameService
 @inject DbPersonService personService
@@ -9,93 +10,94 @@
 
 @if (IsUserLoggedIn)
 {
-<PageTitle>Active Game</PageTitle>
+    <PageTitle>Active Game</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
-    <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Active Game</MudText>
+    <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
+        <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Active Game</MudText>
 
-    @if (Game is not null)
-    {
-        <div class="d-flex flex-column align-items-center mb-4">
-            <MudText Class="text-center text-primary font-weight-bold">
-                Willkommen zum Spiel, <strong>@LoggedInUser</strong>
-            </MudText>
-            <MudText Class="text-center mt-3">
-                <strong>Parcours:</strong> @Game.Parcours.Name
-                <span class="mx-2">|</span>
-                <strong>Ruleset:</strong> @Game.Ruleset.Name
-                <span class="mx-2">|</span>
-                <strong>Code:</strong> @Game.Code
-                <span class="mx-2">|</span>
-                <strong>Von:</strong> @Game.Owner.NickName
-            </MudText>
-        </div>
-    }
-    else
-    {
-        <MudText>
-            loading...
-        </MudText>
-    }
-
-    @if (Cards.Any())
-    {
-        @foreach (var card in Cards)
+        @if (Game is not null)
         {
-            if (Cards.IndexOf(card) <= CurrentCardIndex)
-            {
-                <MudCard Class="mb-4">
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">Target</MudText>
+            <div class="d-flex flex-column align-items-center mb-4">
+                <MudText Class="text-center text-primary font-weight-bold">
+                    Willkommen zum Spiel, <strong>@LoggedInUser</strong>
+                </MudText>
+                <MudText Class="text-center mt-3">
+                    <strong>Parcours:</strong> @Game.Parcours.Name
+                    <span class="mx-2">|</span>
+                    <strong>Ruleset:</strong> @Game.Ruleset.Name
+                    <span class="mx-2">|</span>
+                    <strong>Code:</strong> @Game.Code
+                    <span class="mx-2">|</span>
+                    <strong>Von:</strong> @Game.Owner.NickName
+                </MudText>
+            </div>
+        }
+        else
+        {
+            <MudText>
+                loading...
+            </MudText>
+        }
 
-                    <MudContainer Class="pa-4">
-                        @foreach (var shot in card.ShotAttempts)
-                        {
-                            <MudRadioGroup T="int?" ValueChanged="@(val => HandleShotSelection(shot, val))">
-                                @foreach (var option in shot.HitOptions.Select((value, index) => new { value, index }))
-                                {
-                                    <MudRadio T="int?" Value="@option.index">@option.value</MudRadio>
-                                }
-                            </MudRadioGroup>
-                            <MudDivider Class="my-2" />
-                        }
-                    </MudContainer>
-                </MudCard>
+        @if (Cards.Any())
+        {
+            @foreach (var card in Cards)
+            {
+                if (Cards.IndexOf(card) <= CurrentCardIndex)
+                {
+                    <MudCard Class="mb-4" disabled=@(Cards.IndexOf(card) < CurrentCardIndex)>
+                        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">Target</MudText>
+
+                        <MudContainer Class="pa-4">
+                            @foreach (var shot in card.ShotAttempts)
+                            {
+                                <MudRadioGroup T="int?" ValueChanged="@(val => HandleShotSelection(shot, val))">
+                                    @foreach (var option in shot.HitOptions.Select((value, index) => new { value, index }))
+                                    {
+                                        <MudRadio Disabled=@(Cards.IndexOf(card) < CurrentCardIndex) T="int?" Value="@option.index">@option.value</MudRadio>
+                                    }
+                                </MudRadioGroup>
+                                <MudDivider Class="my-2" />
+                            }
+                        </MudContainer>
+                    </MudCard>
+                }
             }
         }
-    }
-    else
-    {
-        <MudText Typo="Typo.body1" Align="Align.Center">No active data to display.</MudText>
-    }
 
-    @if (Game is not null)
-    {
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2 mb-4" OnClick="FinishGame">
-            Spiel abschließen
-        </MudButton>
+        else
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center">No active data to display.</MudText>
+        }
 
-        <div class="d-flex flex-column align-items-center mb-4">
-            <MudText Class="text-center text-primary font-weight-bold">
-                Aktive Spieler:
+        @if (Game is not null)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-2 mb-4" OnClick="FinishGame">
+                Spiel abschließen
+            </MudButton>
+
+            <div class="d-flex flex-column align-items-center mb-4">
+                <MudText Class="text-center text-primary font-weight-bold">
+                    Aktive Spieler:
+                </MudText>
+                <MudList T="Person" Class="text-center mt-3">
+                    @foreach (var person in Game.activePlayers)
+                    {
+                        <MudListItem>
+                            @person.NickName
+                        </MudListItem>
+                    }
+                </MudList>
+            </div>
+        }
+        else
+        {
+            <MudText>
+                loading...
             </MudText>
-            <MudList T="Person" Class="text-center mt-3">
-                @foreach(var person in Game.activePlayers)
-                {
-                    <MudListItem>
-                        @person.NickName
-                    </MudListItem>
-                }
-            </MudList>
-        </div>
-    }
-    else
-    {
-        <MudText>
-            loading...
-        </MudText>
-    }
+        }
 
-</MudContainer>
+    </MudContainer>
 }
 else
 {
@@ -105,6 +107,8 @@ else
 @code {
     [Parameter]
     public string? uniquegameid { get; set; }
+
+    private Score score { get; set; }
 
     private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
@@ -150,19 +154,49 @@ else
             card.OnCardFinished += NextCard;
             Cards.Add(card);
         }
+
+        score = new Score();
+        score.Ruleset = Game.Ruleset;
+        score.Owner = currentUser;
     }
 
     private void HandleShotSelection(ShotAttempt shot, int? value)
     {
         if (value is not null)
         {
+            // Log the shot details
+            var cardIndex = Cards.IndexOf(Cards[CurrentCardIndex]);
+            var optionText = shot.HitOptions[value.Value];
+            Console.WriteLine($"Card: {cardIndex}, Attempt: {Cards[CurrentCardIndex].ShotAttempts.IndexOf(shot)}, Option: {value}");
+
+            var newShot = new Shot();
+
+            newShot.AttemptNumber = Cards[CurrentCardIndex].ShotAttempts.IndexOf(shot);
+
+            newShot.ValueHit = Game.Ruleset.HitTypes[value ?? 0].Values[newShot.AttemptNumber];
+
+            if (score.Results.Count < cardIndex + 1)
+            {
+                score.Results.Add(newShot);
+            }
+            else
+            {
+                score.Results[cardIndex] = newShot;
+            }
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(score, options);
+
+            Console.WriteLine(jsonString);
+
+            // Select the shot option
             shot.SelectOption(value.Value);
-            //StateHasChanged();
         }
     }
 
     private async Task FinishGame()
     {
+        Game.Scores.Add(score);
         Game.activePlayers.Remove(currentUser);
         gameService.UpdateGame(Game);
         navigationManager.NavigateTo($"/GameResults/{Game.Id}");
