@@ -6,6 +6,7 @@
 @inject ISnackbar Snackbar
 @inject AppDbContext DbContext
 @inject IDialogService DialogService
+@inject DbScoreService ScoreService
 @rendermode InteractiveServer
 @using ArrowLog.Components.Pages.Services
 @using ArrowLog.Database
@@ -188,6 +189,11 @@ else
         }
     }
 
+    private async Task ResetProgress()
+    {
+        await ScoreService.ResetProgressForPerson(_currentUser);
+    }
+
     private async Task DeleteAccount()
     {
         bool? result = await DialogService.ShowMessageBox(
@@ -198,11 +204,10 @@ else
 
         if (result == true && _currentUser != null)
         {
-            var deleted = await PersonService.DeletePerson(_currentUser);
-            if (deleted)
+            if (PersonService.DeactivatePerson(_currentUser))
             {
-                await LogoutUser();
                 Snackbar.Add("Account deleted successfully", Severity.Success);
+                await LogoutUser();
             }
             else
             {
@@ -221,12 +226,6 @@ else
     {
         // Logic for resetting password will be implemented later
         Console.WriteLine("Password Reset");
-    }
-
-    private void ResetProgress()
-    {
-        // Logic for resetting progress will be implemented later
-        Console.WriteLine("Progress Reset");
     }
 
     private void GoToNewRuleset()
