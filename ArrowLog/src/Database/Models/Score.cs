@@ -6,6 +6,17 @@ public class Score
     public Ruleset Ruleset { get; set; } = new();
     public Person Owner { get; set; } = new();
 
-    // on the firstElement-nth try the seceondElement-th area was hit
     public List<Shot> Results { get; set; } = new();
+
+    public int getTotalScore()
+    {
+        int sum = 0;
+
+        foreach (Shot shot in Results)
+        {
+            sum += shot.ValueHit;
+        }
+
+        return sum; 
+    }
 }

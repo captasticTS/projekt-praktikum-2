@@ -6,6 +6,8 @@
 @using MudBlazor
 @inject NavigationManager NavigationManager
 
+@if (IsUserLoggedIn)
+{
 <PageTitle>Home</PageTitle>
 
 <MudText Typo="Typo.h1" Align="Align.Center">Hello, @LoggedInUser!</MudText>
@@ -13,7 +15,11 @@
 <p></p>
 <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.TableChart" IconColor="Color.Primary" Size="Size.Large" OnClick="NavigateToAllStatistics">All Statistics</MudButton>
 <p></p>
-
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
 
 @code{
     private string LoggedInUser => HttpContextAccessor.HttpContext.Session.GetString("LoggedInUser");
@@ -27,4 +33,12 @@
     }
 
     private void NavigateToAllStatistics() => NavigationManager.NavigateTo("/History");
+
+    protected override void OnInitialized()
+    {
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 }

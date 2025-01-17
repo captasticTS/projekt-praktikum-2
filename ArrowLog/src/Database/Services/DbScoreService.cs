@@ -7,6 +7,24 @@ public class DbScoreService
 {
     private AppDbContext _context;
 
+    public async Task<bool> ResetProgressForPerson(Person? person)
+    {
+        if (person is null) return false;
+
+        try
+        {
+            person.Scores = new();
+            await (new DbPersonService(_context)).UpdatePerson(person);
+
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
     public DbScoreService(AppDbContext context)
     {
         _context = context;

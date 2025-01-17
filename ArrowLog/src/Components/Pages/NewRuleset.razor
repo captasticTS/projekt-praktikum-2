@@ -10,6 +10,8 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject AppDbContext DbContext
 
+@if (IsUserLoggedIn)
+{
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Section Title -->
     <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-3">New Ruleset</MudText>
@@ -96,6 +98,11 @@
         </MudGrid>
     </MudForm>
 </MudContainer>
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
 
 @code {
     private string RulesetName = string.Empty;
@@ -166,12 +173,7 @@
         public List<int> Scores { get; set; } = new List<int>();
     }
 
-
-
-
-
-
-
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
     private bool _isSaving = false;
     private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
 
@@ -241,5 +243,11 @@
         }
     }
 
-
+    protected override void OnInitialized()
+    {
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 }

@@ -15,12 +15,20 @@
         <MudGrid Spacing="3">
             <!-- Username Input -->
             <MudItem xs="12">
-                <MudTextField Label="Username" @bind-Value="Username" Variant=Variant.Outlined FullWidth />
+                <MudTextField Label="Nickname" @bind-Value="Username" Variant=Variant.Outlined FullWidth />
             </MudItem>
 
             <!-- Password Input -->
             <MudItem xs="12">
-                <MudTextField InputType="@InputType.Password" Label="Password" @bind-Value="Password" Variant=Variant.Outlined FullWidth InputType.password />
+                <MudTextField @bind-Value="Password"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              InputType="@PasswordInput"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@PasswordInputIcon"
+                              OnAdornmentClick="TogglePasswordVisibility"
+                              AdornmentAriaLabel="Show Password"
+                              FullWidth />
             </MudItem>
         </MudGrid>
 
@@ -67,6 +75,26 @@
     private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser");
     private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
 
+    private bool IsPasswordVisible { get; set; }
+    private InputType PasswordInput { get; set; } = InputType.Password;
+    private string PasswordInputIcon { get; set; } = Icons.Material.Filled.VisibilityOff;
+
+    private void TogglePasswordVisibility()
+    {
+        if (IsPasswordVisible)
+        {
+            IsPasswordVisible = false;
+            PasswordInput = InputType.Password;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        else
+        {
+            IsPasswordVisible = true;
+            PasswordInput = InputType.Text;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+        }
+    }
+
     protected override void OnInitialized()
     {
         if (IsUserLoggedIn)
@@ -105,7 +133,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occured: {ex.Message}";
+            errorMessage = $"An error occurred: {ex.Message}";
         }
     }
 

@@ -7,6 +7,8 @@
 @inject DbPersonService personService
 @inject NavigationManager navigationManager
 
+@if (IsUserLoggedIn)
+{
 <PageTitle>Active Game</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
@@ -94,6 +96,11 @@
     }
 
 </MudContainer>
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
 
 @code {
     [Parameter]
@@ -158,7 +165,7 @@
     {
         Game.activePlayers.Remove(currentUser);
         gameService.UpdateGame(Game);
-        navigationManager.NavigateTo($"/");
+        navigationManager.NavigateTo($"/GameResults/{Game.Id}");
     }
 
     private void NextCard()
@@ -171,6 +178,14 @@
         else
         {
             Console.WriteLine("Game Over!");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (!IsUserLoggedIn)
+        {
+            navigationManager.NavigateTo("/");
         }
     }
 }
