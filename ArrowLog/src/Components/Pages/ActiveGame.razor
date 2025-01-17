@@ -46,7 +46,7 @@
                 if (Cards.IndexOf(card) <= CurrentCardIndex)
                 {
                     <MudCard Class="mb-4" disabled=@(Cards.IndexOf(card) < CurrentCardIndex)>
-                        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">Target</MudText>
+                        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">Target @(Cards.IndexOf(card)+1)</MudText>
 
                         <MudContainer Class="pa-4">
                             @foreach (var shot in card.ShotAttempts)
