@@ -1,7 +1,11 @@
 ﻿@page "/history"
+@inject IHttpContextAccessor HttpContextAccessor
 @using MudBlazor
+@inject NavigationManager NavigationManager
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+@if (IsUserLoggedIn)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
     <!-- Section Title -->
     <MudGrid Spacing="3" AlignItems="Center">
         <MudItem xs="10">
@@ -38,16 +42,29 @@
 <MudContainer>
     <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350" ChartOptions="options"></MudChart>
 </MudContainer>
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
 
 @code {
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
     private ChartOptions options = new ChartOptions();
     public List<ChartSeries> Series = new List<ChartSeries>();
     public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
     protected override void OnInitialized()
     {
-        // Create consistent data for past games spread over the year
-        Games = new List<Game>
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            // Create consistent data for past games spread over the year
+            Games = new List<Game>
         {
             new Game { Date = new DateTime(DateTime.Now.Year, 1, 15), Parcour = "Forest Trail", Score = 85 },
             new Game { Date = new DateTime(DateTime.Now.Year, 1, 20), Parcour = "Mountain Path", Score = 92 },
@@ -81,49 +98,50 @@
             new Game { Date = new DateTime(DateTime.Now.Year, 10, 25), Parcour = "Haunted Woods", Score = 80 }
         };
 
-        // Ensure Games are sorted by Date (newest on top)
-        Games = Games.OrderByDescending(g => g.Date).ToList();
+            // Ensure Games are sorted by Date (newest on top)
+            Games = Games.OrderByDescending(g => g.Date).ToList();
 
-        // Calculate the average score
-        CalculateAverageScore();
+            // Calculate the average score
+            CalculateAverageScore();
 
-        // Initialize a dictionary to hold the scores aggregates for each month
-        var monthlyScores = new Dictionary<int, List<double>>();
-        foreach (var game in Games)
-        {
-            int monthIndex = game.Date.Month - 1;
-            if (!monthlyScores.ContainsKey(monthIndex))
+            // Initialize a dictionary to hold the scores aggregates for each month
+            var monthlyScores = new Dictionary<int, List<double>>();
+            foreach (var game in Games)
             {
-                monthlyScores[monthIndex] = new List<double>();
+                int monthIndex = game.Date.Month - 1;
+                if (!monthlyScores.ContainsKey(monthIndex))
+                {
+                    monthlyScores[monthIndex] = new List<double>();
+                }
+                monthlyScores[monthIndex].Add(game.Score);
             }
-            monthlyScores[monthIndex].Add(game.Score);
+
+            // Initialize an array to hold the scores for each month, carry forward the last known score
+            double[] scores = new double[12];
+            double lastScore = 0; // Default to 0 if there is no initial score
+            for (int i = 0; i < 12; i++)
+            {
+                if (monthlyScores.ContainsKey(i))
+                {
+                    scores[i] = monthlyScores[i].Average();
+                    lastScore = scores[i];
+                }
+                else
+                {
+                    scores[i] = lastScore;
+                }
+            }
+
+            // Update chart data
+            Series.Add(new ChartSeries
+                {
+                    Name = "Scores",
+                    Data = scores
+                });
+
+            // Set chart options for smoothed line
+            options.InterpolationOption = InterpolationOption.NaturalSpline;
         }
-
-        // Initialize an array to hold the scores for each month, carry forward the last known score
-        double[] scores = new double[12];
-        double lastScore = 0; // Default to 0 if there is no initial score
-        for (int i = 0; i < 12; i++)
-        {
-            if (monthlyScores.ContainsKey(i))
-            {
-                scores[i] = monthlyScores[i].Average();
-                lastScore = scores[i];
-            }
-            else
-            {
-                scores[i] = lastScore;
-            }
-        }
-
-        // Update chart data
-        Series.Add(new ChartSeries
-            {
-                Name = "Scores",
-                Data = scores
-            });
-
-        // Set chart options for smoothed line
-        options.InterpolationOption = InterpolationOption.NaturalSpline;
     }
 
     private List<Game> Games = new();
@@ -152,3 +170,4 @@
         public int Score { get; set; }
     }
 }
+

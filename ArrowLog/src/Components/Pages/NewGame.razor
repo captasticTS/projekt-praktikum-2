@@ -12,6 +12,8 @@
 @inject AppDbContext DbContext
 @inject DbParcoursService parcoursService
 
+@if (IsUserLoggedIn)
+{
 <PageTitle>NewGame</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Small" Class="pa-4" Style="padding: 16px;">
     <!-- Enter Code Section -->
@@ -57,6 +59,11 @@
         Start!
     </MudButton>
 </MudContainer>
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
 
 @code {
     private Parcours _selectedCourse;
@@ -182,6 +189,14 @@
         }
 
         return await parcoursService.FindParcoursByName(value) ?? new List<Parcours>();
+    }
+
+    protected override void OnInitialized()
+    {
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("/");
+        }
     }
 }
 
