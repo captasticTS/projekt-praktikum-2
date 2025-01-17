@@ -6,6 +6,7 @@
 @inject ISnackbar Snackbar
 @inject AppDbContext DbContext
 @inject IDialogService DialogService
+@inject DbScoreService ScoreService
 @rendermode InteractiveServer
 @using ArrowLog.Components.Pages.Services
 @using ArrowLog.Database
@@ -186,6 +187,11 @@ else
         {
             _isSaving = false;
         }
+    }
+
+    private async Task ResetProgress()
+    {
+        await ScoreService.ResetProgressForPerson(_currentUser);
     }
 
     private async Task DeleteAccount()
