@@ -2,6 +2,7 @@
 @inherits LayoutComponentBase
 @inject ThemeService ThemeService
 @implements IDisposable
+@inject NavigationManager Navigation
 
 
 @* Required *@
@@ -22,9 +23,12 @@
 @*         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Put Header or LOGO Here </MudText>
         </MudDrawerHeader> *@
+        @if (Navigation.Uri != Navigation.ToAbsoluteUri("/").ToString())
+    {
         <MudDrawerContainer>
 			<NavMenu />
         </MudDrawerContainer>
+    }
     </MudDrawer>
     <MudMainContent Style="padding-bottom: 72px; padding-top: 64px;">
         @Body
