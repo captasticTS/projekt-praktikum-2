@@ -165,7 +165,7 @@ else
     {
         Game.activePlayers.Remove(currentUser);
         gameService.UpdateGame(Game);
-        navigationManager.NavigateTo($"/");
+        navigationManager.NavigateTo($"/GameResults/{Game.Id}");
     }
 
     private void NextCard()

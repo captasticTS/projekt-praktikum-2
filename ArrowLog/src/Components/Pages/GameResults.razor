@@ -1,0 +1,101 @@
+﻿@page "/GameResults/{dbgameid}"
+@inject IHttpContextAccessor HttpContextAccessor
+@using ArrowLog.Features.GameLoop
+@using ArrowLog.Database.Services
+@using ArrowLog.Database.Models
+@inject DbGameService gameService
+@inject DbPersonService personService
+@inject NavigationManager navigationManager
+
+<PageTitle>Active Game Results</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4" Style="padding: 16px;">
+    <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Game Results</MudText>
+
+    @if (Game is not null)
+    {
+        <!-- Scores Section -->
+        <MudPaper Class="pa-3 mb-4" Elevation="1">
+            <MudText Typo="Typo.h6" GutterBottom="true">Scores</MudText>
+            @if (Game.Scores.Any())
+            {
+                <MudList T="Score">
+                    @foreach (var score in Game.Scores)
+                    {
+                        <MudListItem>
+                            <MudText Typo="Typo.body1">
+                                <strong>@score.Owner:</strong> @score.getTotalScore()
+                            </MudText>
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No scores yet</MudText>
+            }
+        </MudPaper>
+
+        <!-- Active Players Section -->
+        <MudPaper Class="pa-3 mb-4" Elevation="1">
+            <MudText Typo="Typo.h6" GutterBottom="true">Active Players</MudText>
+            @if (Game.activePlayers.Any())
+            {
+                <MudList T="Person">
+                    @foreach (var player in Game.activePlayers)
+                    {
+                        <MudListItem>
+                            <MudText Typo="Typo.body1">@player.NickName</MudText>
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No active players left</MudText>
+            }
+        </MudPaper>
+
+        <!-- Finish Game Button -->
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-3" OnClick="FinishGame">
+            Finish Game
+        </MudButton>
+    }
+    else
+    {
+        <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary">Loading...</MudText>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string? dbgameid { get; set; }
+
+    private string LoggedInUser => HttpContextAccessor.HttpContext?.Session.GetString("LoggedInUser") ?? string.Empty;
+    private bool IsUserLoggedIn => !string.IsNullOrEmpty(LoggedInUser);
+
+    private Person? currentUser { get; set; } = new();
+    private Game? Game { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = (await personService.FindPersonsByName(LoggedInUser))?.FirstOrDefault();
+
+        if (currentUser is null)
+        {
+            return;
+        }
+
+        await InitializeScore();
+    }
+
+    private async Task InitializeScore()
+    {
+        Game = (await gameService.FindGameById(int.Parse(dbgameid)));
+    }
+
+    private void FinishGame()
+    {
+        navigationManager.NavigateTo("/home");
+    }
+}
