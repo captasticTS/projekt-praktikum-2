@@ -196,9 +196,11 @@ else
 
     private async Task FinishGame()
     {
+        Game = await gameService.FindGameById(Game.Id);
+        //await gameService.AddScoreToGameId(Game.Id, score);
         Game.Scores.Add(score);
         Game.activePlayers.Remove(currentUser);
-        gameService.UpdateGame(Game);
+        await gameService.UpdateGame(Game);
         navigationManager.NavigateTo($"/GameResults/{Game.Id}");
     }
 

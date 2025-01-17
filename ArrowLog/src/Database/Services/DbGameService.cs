@@ -101,13 +101,32 @@ public class DbGameService
         }
     }
 
+    public async Task<bool> AddScoreToGameId(int id, Score score)
+    {
+        try
+        {
+            (await _context.Games.FindAsync(id)).Scores.Add(score);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
     public async Task<Game?> FindGameById(int id)
     {
         try
         {
             var game = await _context.Games
+                .Include(x => x.Scores)
+                    .ThenInclude(s => s.Results)
                 .Include(x => x.Ruleset)
+                .Include(x => x.activePlayers)
                 .Include(x => x.Parcours)
+                .Include(x => x.Owner)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return game;
@@ -137,6 +156,7 @@ public class DbGameService
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.InnerException.Message);
             return null;
         }
     }

@@ -33,28 +33,12 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Game>()
             .HasOne(g => g.Owner)
             .WithMany()
-            .HasForeignKey("OwnerId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Game>()
             .HasMany(g => g.activePlayers)
             .WithOne()
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Score>()
-            .HasOne(s => s.Owner)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Game>()
-            .HasOne(s => s.Owner)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Ruleset>()
-            .HasOne(s => s.Author)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Person>()
             .HasMany(p => p.Games)
