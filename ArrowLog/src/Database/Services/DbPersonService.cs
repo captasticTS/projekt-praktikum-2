@@ -12,6 +12,29 @@ public class DbPersonService
         _context = context;
     }
 
+    public bool DeactivatePerson(Person person)
+    {
+        person.FirstName = "Deleted";
+        person.LastName = "User";
+        person.NickName = "DeletedUser";
+        person.Email = "None";
+        person.PasswordHash = "";
+        person.Scores = new();
+        person.Games = new();
+
+        try
+        {
+            _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+        
+    }
+
     public async Task<Person?> CreatePerson(Person person)
     {
         try

@@ -41,6 +41,21 @@ public class AppDbContext : DbContext
             .WithOne()
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Score>()
+            .HasOne(s => s.Owner)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Game>()
+            .HasOne(s => s.Owner)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Ruleset>()
+            .HasOne(s => s.Author)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<Person>()
             .HasMany(p => p.Games)
             .WithMany();

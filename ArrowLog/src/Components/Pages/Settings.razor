@@ -198,11 +198,10 @@ else
 
         if (result == true && _currentUser != null)
         {
-            var deleted = await PersonService.DeletePerson(_currentUser);
-            if (deleted)
+            if (PersonService.DeactivatePerson(_currentUser))
             {
-                await LogoutUser();
                 Snackbar.Add("Account deleted successfully", Severity.Success);
+                await LogoutUser();
             }
             else
             {
