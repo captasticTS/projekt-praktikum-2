@@ -12,7 +12,7 @@
     <!-- Registration Form -->
     <MudForm @ref="form">
         <MudGrid Spacing="3">
-            <!-- First Name<a href="c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor">c:\users\haemic\source\repos\projekt-praktikum-2\arrowlog\src\components\pages\register.razor</a> -->
+            <!-- First Name -->
             <MudItem xs="12">
                 <MudTextField Label="First Name" @bind-Value="FirstName" Variant=Variant.Outlined FullWidth />
             </MudItem>
@@ -34,7 +34,15 @@
 
             <!-- Password -->
             <MudItem xs="12">
-                <MudTextField Label="Password" @bind-Value="Password" Variant=Variant.Outlined FullWidth InputType.password />
+                <MudTextField @bind-Value="Password"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              InputType="@PasswordInput"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@PasswordInputIcon"
+                              OnAdornmentClick="TogglePasswordVisibility"
+                              AdornmentAriaLabel="Show Password"
+                              FullWidth />
             </MudItem>
         </MudGrid>
 
@@ -74,6 +82,26 @@
 
     private MudForm form;
     private bool RegisterFailed;
+
+    private bool IsPasswordVisible { get; set; }
+    private InputType PasswordInput { get; set; } = InputType.Password;
+    private string PasswordInputIcon { get; set; } = Icons.Material.Filled.VisibilityOff;
+
+    private void TogglePasswordVisibility()
+    {
+        if (IsPasswordVisible)
+        {
+            IsPasswordVisible = false;
+            PasswordInput = InputType.Password;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        else
+        {
+            IsPasswordVisible = true;
+            PasswordInput = InputType.Text;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+        }
+    }
 
     private async Task RegisterUser()
     {
