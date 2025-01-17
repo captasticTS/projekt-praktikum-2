@@ -1,47 +1,48 @@
 ﻿@page "/history"
 @inject IHttpContextAccessor HttpContextAccessor
 @using MudBlazor
+@using ArrowLog.Database.Services
+@using ArrowLog.Database.Models
 @inject NavigationManager NavigationManager
+@inject DbGameService gameService
+@inject DbPersonService personService
 
 @if (IsUserLoggedIn)
 {
     <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
-    <!-- Section Title -->
-    <MudGrid Spacing="3" AlignItems="Center">
-        <MudItem xs="10">
-            <MudText Typo="Typo.h5" Align="Align.Start">Past Games</MudText>
-        </MudItem>
-        <MudItem xs="2" Class="d-flex justify-center">
-            <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" OnClick="RefreshGames" />
-        </MudItem>
-    </MudGrid>
+        <MudGrid Spacing="3" AlignItems="Center">
+            <MudItem xs="10">
+                <MudText Typo="Typo.h5" Align="Align.Start">Past Games</MudText>
+            </MudItem>
+            <MudItem xs="2" Class="d-flex justify-center">
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" OnClick="RefreshGames" />
+            </MudItem>
+        </MudGrid>
 
-    <!-- Past Games Table -->
-    <MudTable Items="Games" Dense="true" Bordered="true" Hover="true">
-        <HeaderContent>
-            <MudTh>Date</MudTh>
-            <MudTh>Parcour</MudTh>
-            <MudTh>Score</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-            <MudTd DataLabel="Parcour">@context.Parcour</MudTd>
-            <MudTd DataLabel="Score">@context.Score</MudTd>
-        </RowTemplate>
-    </MudTable>
+        <MudTable Items="GameHistory" Dense="true" Bordered="true" Hover="true" Loading="@isLoading">
+            <HeaderContent>
+                <MudTh>Date</MudTh>
+                <MudTh>Parcour</MudTh>
+                <MudTh>Score</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                <MudTd DataLabel="Parcour">@context.Parcour</MudTd>
+                <MudTd DataLabel="Score">@context.Score</MudTd>
+            </RowTemplate>
+        </MudTable>
 
-    <!-- Avg Score -->
-    <MudGrid Spacing="3" Class="mt-4">
-        <MudItem xs="12">
-            <MudText Typo="Typo.body1">Avg Score:</MudText>
-            <MudTextField @bind-Value="AverageScore" Variant="Variant.Outlined" FullWidth Disabled />
-        </MudItem>
-    </MudGrid>
-</MudContainer>
+        <MudGrid Spacing="3" Class="mt-4">
+            <MudItem xs="12">
+                <MudText Typo="Typo.body1">Avg Score:</MudText>
+                <MudTextField @bind-Value="AverageScore" Variant="Variant.Outlined" FullWidth Disabled />
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
 
-<MudContainer>
-    <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350" ChartOptions="options"></MudChart>
-</MudContainer>
+    <MudContainer>
+        <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350" ChartOptions="options"></MudChart>
+    </MudContainer>
 }
 else
 {
@@ -54,120 +55,125 @@ else
     private ChartOptions options = new ChartOptions();
     public List<ChartSeries> Series = new List<ChartSeries>();
     public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    private bool isLoading = true;
 
-    protected override void OnInitialized()
+    private List<GameHistoryItem> GameHistory = new();
+    private double AverageScore;
+    private Person? currentUser;
+
+    protected override async Task OnInitializedAsync()
     {
         if (!IsUserLoggedIn)
         {
             NavigationManager.NavigateTo("/");
+            return;
         }
-        else
+
+        currentUser = (await personService.FindPersonsByName(LoggedInUser))?.FirstOrDefault();
+        if (currentUser != null)
         {
-            // Create consistent data for past games spread over the year
-            Games = new List<Game>
-        {
-            new Game { Date = new DateTime(DateTime.Now.Year, 1, 15), Parcour = "Forest Trail", Score = 85 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 1, 20), Parcour = "Mountain Path", Score = 92 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 1, 25), Parcour = "Valley Range", Score = 78 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 2, 5), Parcour = "Riverside", Score = 68 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 3, 25), Parcour = "Hilly Terrain", Score = 74 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 4, 15), Parcour = "Desert Dune", Score = 81 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 5, 4), Parcour = "Urban Jungle", Score = 90 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 6, 18), Parcour = "Dense Forest", Score = 88 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 7, 9), Parcour = "Mountain Pass", Score = 83 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 8, 30), Parcour = "Open Plains", Score = 77 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 1, 5), Parcour = "Snowy Hills", Score = 82 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 1, 28), Parcour = "Frozen Lake", Score = 88 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 2, 14), Parcour = "Valentine Valley", Score = 75 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 2, 26), Parcour = "Sunny Dunes", Score = 82 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 3, 3), Parcour = "Emerald Greens", Score = 79 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 3, 22), Parcour = "Spring Meadows", Score = 86 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 4, 10), Parcour = "Desert Mirage", Score = 72 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 4, 21), Parcour = "Rocky Trail", Score = 83 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 5, 8), Parcour = "Forest Brook", Score = 78 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 5, 28), Parcour = "Sunny Glades", Score = 85 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 6, 7), Parcour = "Mountain Stream", Score = 80 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 6, 25), Parcour = "Cactus Valley", Score = 84 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 7, 11), Parcour = "Summer Heights", Score = 88 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 7, 26), Parcour = "Lakeside Lodge", Score = 81 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 8, 5), Parcour = "Forest Edge", Score = 92 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 8, 20), Parcour = "Sandy Cove", Score = 87 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 9, 2), Parcour = "Autumn Leaves", Score = 79 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 9, 18), Parcour = "Maple Grove", Score = 85 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 10, 8), Parcour = "Pumpkin Patch", Score = 73 },
-            new Game { Date = new DateTime(DateTime.Now.Year, 10, 25), Parcour = "Haunted Woods", Score = 80 }
-        };
-
-            // Ensure Games are sorted by Date (newest on top)
-            Games = Games.OrderByDescending(g => g.Date).ToList();
-
-            // Calculate the average score
-            CalculateAverageScore();
-
-            // Initialize a dictionary to hold the scores aggregates for each month
-            var monthlyScores = new Dictionary<int, List<double>>();
-            foreach (var game in Games)
-            {
-                int monthIndex = game.Date.Month - 1;
-                if (!monthlyScores.ContainsKey(monthIndex))
-                {
-                    monthlyScores[monthIndex] = new List<double>();
-                }
-                monthlyScores[monthIndex].Add(game.Score);
-            }
-
-            // Initialize an array to hold the scores for each month, carry forward the last known score
-            double[] scores = new double[12];
-            double lastScore = 0; // Default to 0 if there is no initial score
-            for (int i = 0; i < 12; i++)
-            {
-                if (monthlyScores.ContainsKey(i))
-                {
-                    scores[i] = monthlyScores[i].Average();
-                    lastScore = scores[i];
-                }
-                else
-                {
-                    scores[i] = lastScore;
-                }
-            }
-
-            // Update chart data
-            Series.Add(new ChartSeries
-                {
-                    Name = "Scores",
-                    Data = scores
-                });
-
-            // Set chart options for smoothed line
-            options.InterpolationOption = InterpolationOption.NaturalSpline;
+            await LoadGameHistory();
         }
     }
 
-    private List<Game> Games = new();
-    private double AverageScore;
+    private async Task LoadGameHistory()
+    {
+        isLoading = true;
+        GameHistory.Clear();
+        Series.Clear();
+
+        try
+        {
+            if (currentUser != null)
+            {
+                var activeGames = await gameService.FindGameByActivity(false);
+                if (activeGames != null)
+                {
+                    // Filter games where the current user was a participant and transform to GameHistoryItem
+                    GameHistory = activeGames
+                        .Where(g => g.activePlayers.Any(p => p.Id == currentUser.Id) || g.Owner.Id == currentUser.Id)
+                        .Select(game => new GameHistoryItem
+                            {
+                                //Todo: Score does not load properly
+                                Date = game.Date,
+                                Parcour = game.Parcours.Name,
+                                Score = game.Scores
+                                    .Where(s => s.Owner.Id == currentUser.Id)
+                                    .Select(s => s.getTotalScore())
+                                    .FirstOrDefault()
+                            })
+                        .OrderByDescending(g => g.Date)
+                        .ToList();
+
+                    CalculateAverageScore();
+                    UpdateChartData();
+
+                }
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
 
     private void CalculateAverageScore()
     {
-        if (Games.Any())
+        if (GameHistory.Any())
         {
-            AverageScore = Games.Average(g => g.Score);
+            AverageScore = GameHistory.Average(g => g.Score);
         }
     }
 
-    private void RefreshGames()
+    private void UpdateChartData()
     {
-        // Logic to refresh the games data
-        Console.WriteLine("Refreshing games...");
-        // For now, just recalculate the average score
-        CalculateAverageScore();
+        // Initialize a dictionary to hold the scores aggregates for each month
+        var monthlyScores = new Dictionary<int, List<double>>();
+        foreach (var game in GameHistory)
+        {
+            int monthIndex = game.Date.Month - 1;
+            if (!monthlyScores.ContainsKey(monthIndex))
+            {
+                monthlyScores[monthIndex] = new List<double>();
+            }
+            monthlyScores[monthIndex].Add(game.Score);
+        }
+
+        // Initialize an array to hold the scores for each month, carry forward the last known score
+        double[] scores = new double[12];
+        double lastScore = 0;
+        for (int i = 0; i < 12; i++)
+        {
+            if (monthlyScores.ContainsKey(i))
+            {
+                scores[i] = monthlyScores[i].Average();
+                lastScore = scores[i];
+            }
+            else
+            {
+                scores[i] = lastScore;
+            }
+        }
+
+        Series.Add(new ChartSeries
+            {
+                Name = "Scores",
+                Data = scores
+            });
+
+        options.InterpolationOption = InterpolationOption.NaturalSpline;
     }
 
-    public class Game
+    private async Task RefreshGames()
+    {
+        await LoadGameHistory();
+    }
+
+    private class GameHistoryItem
     {
         public DateTime Date { get; set; }
-        public string Parcour { get; set; }
+        public string Parcour { get; set; } = string.Empty;
         public int Score { get; set; }
     }
 }
-
